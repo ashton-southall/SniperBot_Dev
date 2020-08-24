@@ -1,0 +1,5 @@
+node_modules
+users.json
+sniperbot.log
+*.log
+src/config.json
