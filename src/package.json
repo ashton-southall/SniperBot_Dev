@@ -13,7 +13,7 @@
   },
   "devDependencies": {},
   "scripts": {
-    "admin": "node ./admin.js",
+    "admin": "node ./adminPanel/admin.js",
     "twitch": "node ./twitch/twitch.js",
     "discord": "node ./discord/discord.js"
   },

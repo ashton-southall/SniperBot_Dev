@@ -10,7 +10,7 @@ log4js.configure({
   appenders: {
     twitch: {
       type: 'file',
-      filename: 'twitch.log'
+      filename: 'src/logs/twitch.log'
     }
   },
   categories: {

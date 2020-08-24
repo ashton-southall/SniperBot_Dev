@@ -3,3 +3,4 @@ users.json
 sniperbot.log
 *.log
 src/config.json
+package-lock.json

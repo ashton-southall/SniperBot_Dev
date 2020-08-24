@@ -1,10 +1,10 @@
 const express = require("express");
-const { list } = require("pm2");
 const app = express();
+const config = require("../config.json");
 
 // Express Settings
-const host = 'localhost';
-const port = 3000
+const host = config.adminPanelConfig.host;
+const port = config.adminPanelConfig.port;
 
 // Page Routing
 app.get('/', (req, res) => {
