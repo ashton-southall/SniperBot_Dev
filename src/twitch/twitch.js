@@ -4,7 +4,6 @@ const config = require("../config.json");
 const {Wit,log} = require('node-wit');
 const client = new tmi.Client(config.twitchConfig);
 const AI = new Wit({accessToken: config.masterConfig.wit_token});
-const pm2 = require('@pm2/io');
 const log4js = require('log4js');
 
 log4js.configure({
