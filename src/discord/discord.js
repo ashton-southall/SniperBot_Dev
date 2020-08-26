@@ -59,17 +59,71 @@ client.on('message', message => {
   // Direct Message Communication
   // Redirect Revieved DMs
   if (message.channel.type == "dm") {
-    message.author.send("Thank you for your message, I will pass it on to my creators, please join the official SniperBot disocrd to allow us to get back to you\rhttps://discord.gg/zBt3GRT");
-    client.channels.cache.get("707636583121158174").send(`${message.author}: ${message}`);
+
+    const DMReplyEmbed = new Discord.MessageEmbed()
+      .setColor('#ff5757')
+      .setTitle(`Thanks for your message, I'll pass it on to my creators`)
+      .setDescription(`If you would like my creators to get back to you please join the official discord by clicking the embed title`)
+      .setURL('https://discord.io/sniperbot')
+      .setTimestamp()
+      .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+
+    const NewMessageEmbed = new Discord.MessageEmbed()
+      .setColor('#ff5757')
+      .setTitle(`New Message`)
+      .addField(`User ID: ${message.author.id}`, `${message}`, true)
+      .setTimestamp()
+      .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+
+    message.author.send(DMReplyEmbed);
+    client.channels.cache.get("707636583121158174").send(NewMessageEmbed);
     return;
   }
 
   if (config.discordConfig.users.blacklist.includes(message.member.id)) {
     message.member.kick().then((member) => {
-      logger.info(`kicked ${message.author} from a server as they were found on the Global Blacklist`);
-      message.author.send("You have been automatically kicked by SniperBot because you are on the SniperBot global blacklist,\rDM Adsnipers#6231 if you think this is an error");
+
+      const blacklistKickEmbed = new Discord.MessageEmbed()
+        .setColor('#ff5757')
+        .setTitle(`User Kicked`)
+        .addField(`${config.masterConfig.blacklist_ban_reason}`)
+        .setTimestamp()
+        .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+
+      const BlacklistDMEmbed = new Discord.MessageEmbed()
+        .setColor('#ff5757')
+        .setTitle(`You've been kicked Kicked`)
+        .addFields({
+          name: `You've been kicked from a server because you are a blacklisted user on SniperBot `,
+          value: `since you are a blacklisted user, any server using SniperBot will kick you if you join, or try to talk`
+        }, {
+          name: '\u200B',
+          value: '\u200B'
+        }, {
+          name: 'Appeal to have your Blacklist Status revoked',
+          value: 'https://bit.ly/SniperBotBanAppeal',
+          inline: true
+        }, {
+          name: 'Tip',
+          value: 'You can contact SniperBot developers by messaging SniperBot in DMs, your message will be redirected to SniperBot admins and developers. be sure to leave contact info if you want them to get back to you',
+          inline: true
+        }, )
+        .setTimestamp()
+        .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+
+      message.channel.send(blacklistKickEmbed);
+      logger.info(`kicked user: ${message.author} from a server as they were found on the Global Blacklist`);
+      message.author.send(BlacklistDMEmbed);
     }).catch((error) => {
-      message.channel.send("Error while kicking blacklisted user, error: " + error);
+
+      const BlacklistErrorEmbed = new Discord.MessageEmbed()
+        .setColor('#ff5757')
+        .setTitle(`An error has occurred`)
+        .addField(`There was an error while attempting to kick blacklisted user ${message.author}`, `${error}`)
+        .setTimestamp()
+        .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+
+      message.channel.send(BlacklistErrorEmbed);
     })
   }
 
@@ -78,10 +132,26 @@ client.on('message', message => {
       let member = message.mentions.members.first();
       if (member) {
         member.kick().then((member) => {
-          message.channel.send(member.displayName + "has been kicked");
+
+          const UserKickedEmbed = new Discord.MessageEmbed()
+            .setColor('#ff5757')
+            .setTitle(`User Kicked`)
+            .addField(`${member} has been kicked from the server`, `kicked by ${message.author}`)
+            .setTimestamp()
+            .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+
+          message.channel.send(UserKickedEmbed);
         })
       } else {
-        message.channel.send(`That person could not be found, Please mention a member to kick`);
+
+        const KickErrorEmbed = new Discord.MessageEmbed()
+          .setColor('#ff5757')
+          .setTitle(`An error has occurred`)
+          .addField(`There was an error while attempting to kick user ${message.author}`, `${error}`)
+          .setTimestamp()
+          .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+
+        message.channel.send(KickErrorEmbed);
       }
     }
   }
@@ -89,14 +159,61 @@ client.on('message', message => {
     let member = message.mentions.members.first();
     if (member) {
       member.kick().then((member) => {
-        message.channel.send(member.displayName + "has been banned");
+
+        const BanUserEmbed = new Discord.MessageEmbed()
+          .setColor('#ff5757')
+          .setTitle(`User banned`)
+          .addField(`${member} has been banned from the server`, `Banned by ${message.author}`)
+          .setTimestamp()
+          .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+
+        message.channel.send(BanUserEmbed);
       })
     } else {
-      message.channel.send(`That person could not be found, please mention a member to be banned`);
+      const BanErrorEmbed = new Discord.MessageEmbed()
+        .setColor('#ff5757')
+        .setTitle(`An error has occurred`)
+        .addField(`There was an error while attempting to Ban user ${message.author}`, `${error}`)
+        .setTimestamp()
+        .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+
+      message.channel.send(banErrorEmbed);
     }
   }
   if (message.content.startsWith(`${prefix}help`)) {
-    message.channel.send("**SniperBot By Adsnipers**\r**Administrator Commands**\r- !ban {mention_member}\r**Moderator Commands**\r- !kick {mention_member}\r**----**\rfor more information about SniperBot visit\rhttp://sniperbot.rf.gd\rFor advanced support join the official SniperBot discord to chat with a developer:\rhttps://discord.gg/zBt3GRT\rMore information is also availavle at https://github.com/Adsnipers/TheSniperBot");
+
+    const HelpEmbed = new Discord.MessageEmbed()
+      .setColor('#ff5757')
+      .setThumbnail(`https://i.imgur.com/WFj42aM.png`)
+      .setTitle(`SniperBot By Adsnipers`)
+      .addFields({
+        name: `SniperBot Admin Commands`,
+        value: `Note: These commands can only be used by SniperBot Admins\r ${config.masterConfig.prefix}blacklist {add / remove} {userID}`
+      }, {
+        name: `Server Admin Commands`,
+        value: `${config.masterConfig.prefix}ban {mention_member}\r${config.masterConfig.prefix}kick {mention_member}`
+      }, {
+        name: `User Commands`,
+        value: `${config.masterConfig.prefix}help - Shows this`
+      }, {
+        name: '\u200B',
+        value: '\u200B'
+      }, {
+        name: 'More Info',
+        value: 'for more information about SniperBot visit\rhttp://sniperbot.tk\rFor advanced support join the official SniperBot discord to chat with a developer:\rhttps://discord.io/sniperbot\rMore information is also availavle at https://github.com/Adsnipers/SniperBot"',
+        inline: true
+      }, {
+        name: '\u200B',
+        value: '\u200B'
+      }, {
+        name: 'Tip',
+        value: 'You can contact SniperBot developers by messaging SniperBot in DMs, your message will be redirected to SniperBot admins and developers. be sure to leave contact info if you want them to get back to you',
+        inline: true
+      })
+      .setTimestamp()
+      .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+
+    message.channel.send(HelpEmbed);
   }
 
   // AI Moderation
@@ -107,13 +224,27 @@ client.on('message', message => {
         logger.info(`[${message.author}]: ${JSON.stringify(data)}`);
         console.log('Intent: ' + data.intents[0].name + ', Traits: ' + data.traits);
         if (data.intents[0].name == 'Banned' && data.intents[0].confidence > '0.9') {
+
+          const AIOperationEmbed = new Discord.MessageEmbed()
+            .setColor('#ff5757')
+            .setTitle(`AI Operation`)
+            .setDescription(`A message has been deleted as it was detected for being highly innapropriate, report any innacuracies at http://bit.ly/SniperBotReport`)
+            .setTimestamp()
+            .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
           logger.info(`Deleting previous message from ${message.author}`);
-          message.channel.send(`[AI Operation] A message has been removed from this channel as it was detected by SniperBot for being highly innapropriate, report any innacuracies on at https://github.com/Adsnipers/TheSniperBot/issues\rDeleted Message: || ${message} ||\rUser: ${message.author}`);
-          message.author.send("[AI Operation] One of your messages in a server has been deleted by SniperBot as it was detected for being highly innapropriate, Report innacuracies at https://github.com/Adsnipers/TheSniperBot/issues`");
+          message.channel.send(AIOperationEmbed);
           message.delete().then(() => {
             console.log(`Successfully deleted message`);
           }).catch((error) => {
-            message.channel.send("There was an error, please report it at https://github.com/Adsnipers/TheSniperBot/issues\rerror message: " + error);
+
+            const AIOperationErrorEmbed = new Discord.MessageEmbed()
+              .setColor('#ff5757')
+              .setTitle(`An error has occurred`)
+              .addField(`There was an error while attempting delete a message`, `${error}`)
+              .setTimestamp()
+              .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+
+            message.channel.send(AIOperationErrorEmbed);
           })
         } else {
           console.log(data);
@@ -130,23 +261,51 @@ client.on('message', message => {
     var name = message.content.split(' ')[2];
     if (config.discordConfig.users.admins.includes(message.author.id)) {
       if (mode == 'add') {
+
+        const BlacklistAddEmbed = new Discord.MessageEmbed()
+        .setColor('#ff5757')
+        .setTitle(`Added User To Global Blacklist`)
+        .addField(`${name}`, `Added By ${message.author}`)
+        .setTimestamp()
+        .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+
         config.discordConfig.users.blacklist.push(name);
         fs.writeFile('config.json', JSON.stringify(config, null, 4), 'utf-8', function (err) {
           if (err) throw err
         });
-        message.channel.send(`Added ${name} to Global Blacklist`);
+        message.channel.send(BlacklistAddEmbed);
       } else if (mode == 'remove') {
+
+        const BlacklistRemoveEmbed = new Discord.MessageEmbed()
+        .setColor('#ff5757')
+        .setTitle(`Removed User From Global Blacklist`)
+        .addField(`${name}`, `Removed By ${message.author}`)
+        .setTimestamp()
+        .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+
         config.discordConfig.users.blacklist.splice(config.discordConfig.users.blacklist.indexOf(name), 1);
         fs.writeFile('config.json', JSON.stringify(config, null, 4), 'utf-8', function (err) {
           if (err) throw err
         });
-        message.channel.send(`Removed ${name} from Global Blacklist`);
+        message.channel.send(BlacklistRemoveEmbed);
       } else {
-        message.channel.send(`incorrect command usage, please use ${config.prefix}blacklist {add / remove} {username}`);
+        const IncorrectCommandEmbed = new Discord.MessageEmbed()
+              .setColor('#ff5757')
+              .setTitle(`Incorrect Command Usage`)
+              .addField(`To use this command`, `${config.masterConfig.prefix}blacklist {add / remove} {userID}`)
+              .setTimestamp()
+              .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+        message.channel.send(IncorrectCommandEmbed);
       }
     } else {
       console.log(message.author.id)
-      message.channel.send(`thats a really powerful command and I cannot let you use it`);
+      const NoPermissionEmbed = new Discord.MessageEmbed()
+              .setColor('#ff5757')
+              .setTitle(`Insufficient Permissions`)
+              .addField(`You do not have access to use this command`, `You must be a SniperBot administrator to use that command`)
+              .setTimestamp()
+              .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+      message.channel.send(NoPermissionEmbed);
     }
   }
 })
