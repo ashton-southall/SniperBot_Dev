@@ -224,15 +224,36 @@ client.on('message', message => {
         logger.info(`[${message.author}]: ${JSON.stringify(data)}`);
         console.log('Intent: ' + data.intents[0].name + ', Traits: ' + data.traits);
         if (data.intents[0].name == 'Banned' && data.intents[0].confidence > '0.9') {
-
           const AIOperationEmbed = new Discord.MessageEmbed()
             .setColor('#ff5757')
             .setTitle(`AI Operation`)
             .setDescription(`A message has been deleted as it was detected for being highly innapropriate, report any innacuracies at http://bit.ly/SniperBotReport`)
             .setTimestamp()
             .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+
+            const AILogEmbed = new Discord.MessageEmbed()
+            .setColor('#ff5757')
+            .setTitle(`AI Operation`)
+            .setDescription(`A message has been deleted as it was detected for being highly innapropriate`)
+            .addFields({
+              name: `Message Content`,
+              value: message
+            }, {
+              name: `Sender ID`,
+              value: message.author.id
+            }, {
+              name: `More Info`,
+              value: `**Channel**\r${message.channel} (${message.channel.id})\r**Server** \r${message.guild} (${message.guild.id})`
+            }, {
+              name: `AI Response`,
+              value: `${data.intents[0].name}: ${data.intents[0].confidence}% Confidence`
+            })
+            .setTimestamp()
+            .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+
           logger.info(`Deleting previous message from ${message.author}`);
           message.channel.send(AIOperationEmbed);
+          client.channels.cache.get("748068812448071750").send(AILogEmbed);
           message.delete().then(() => {
             console.log(`Successfully deleted message`);
           }).catch((error) => {
