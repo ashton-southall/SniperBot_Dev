@@ -49,15 +49,19 @@ client.on('message', (channel, tags, message, self) => {
   AI.message(message, {})
     .then((data) => {
       logger.info(`[${channel}] ${tags.username}: ` + JSON.stringify(data));
-      if (data.intents.name) {
+      if (data) {
+        console.log(data);
         if (data.intents[0].name == 'Banned' && data.intents[0].confidence > 0.9) {
           logger.info(`Purging Messages From ${tags.username}`);
-          client.timeout(channel, tags.username, 1, `AI Timeout, report inaccuracies at https://github.com/Adsnipers/TheSniperBot/issues`);
-          client.say(channel, '@' + tags.username + `[AI Timeout] ${tags.username} has been automatically timed out by SniperBot as it was detected for being Highly innapropriate, Report innacuracies at https://github.com/Adsnipers/TheSniperBot/issues`);
-          AITimeouts.inc();
+          client.timeout(channel, tags.username, 1, `AI Timeout, report inaccuracies at https://bit.ly/SniperBotReport`);
+          client.say(channel, `[AI Timeout] ${tags.username} has been automatically timed out by SniperBot as it was detected for being Highly innapropriate, Report innacuracies at https://bit.ly/SniperBotReport`);
+        } if (data.intents.name[0].name == 'bot_message' && data.intents[0].confidence > 0.9) {
+          client.timeout(channel, tags.username, 1, 'AI Timeout (Message Detected as Bot_Message), report inaccuracies at https://bit.ly/SniperBotReport`');
         } else {
           console.log(data);
         }
+      } else {
+        console.log(data);
       }
     })
     .catch(console.error);
