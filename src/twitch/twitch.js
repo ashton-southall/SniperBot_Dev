@@ -55,7 +55,7 @@ client.on('message', (channel, tags, message, self) => {
           logger.info(`Purging Messages From ${tags.username}`);
           client.timeout(channel, tags.username, 1, `AI Timeout, report inaccuracies at https://bit.ly/SniperBotReport`);
           client.say(channel, `[AI Timeout] ${tags.username} has been automatically timed out by SniperBot as it was detected for being Highly innapropriate, Report innacuracies at https://bit.ly/SniperBotReport`);
-        } if (data.intents.name[0].name == 'bot_message' && data.intents[0].confidence > 0.9) {
+        } if (data.intents[0].name == 'bot_message' && data.intents[0].confidence > 0.9) {
           client.timeout(channel, tags.username, 1, 'AI Timeout (Message Detected as Bot_Message), report inaccuracies at https://bit.ly/SniperBotReport`');
         } else {
           console.log(data);
