@@ -155,29 +155,42 @@ client.on('message', message => {
       }
     }
   }
+  if (message.content.startsWith(`${prefix}purge`)) {
+    if (message.member.hasPermission(['ADMINISTRATOR'])) {
+      purgeAmount = message.content.split(' ')[1]
+      
+      // Bulk delete messages
+      message.channel.bulkDelete(purgeAmount)
+        .then(messages => message.channel.send(`Purged ${messages.size} messages`))
+        .catch(console.error);
+        
+    }
+  }
   if (message.content.startsWith(`${prefix}ban`)) {
-    let member = message.mentions.members.first();
-    if (member) {
-      member.kick().then((member) => {
+    if (message.member.hasPermission(['BAN_MEMBERS'])) {
+      let member = message.mentions.members.first();
+      if (member) {
+        member.kick().then((member) => {
 
-        const BanUserEmbed = new Discord.MessageEmbed()
+          const BanUserEmbed = new Discord.MessageEmbed()
+            .setColor('#ff5757')
+            .setTitle(`User banned`)
+            .addField(`${member} has been banned from the server`, `Banned by ${message.author}`)
+            .setTimestamp()
+            .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+
+          message.channel.send(BanUserEmbed);
+        })
+      } else {
+        const BanErrorEmbed = new Discord.MessageEmbed()
           .setColor('#ff5757')
-          .setTitle(`User banned`)
-          .addField(`${member} has been banned from the server`, `Banned by ${message.author}`)
+          .setTitle(`An error has occurred`)
+          .addField(`There was an error while attempting to Ban user ${message.author}`, `${error}`)
           .setTimestamp()
           .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
 
-        message.channel.send(BanUserEmbed);
-      })
-    } else {
-      const BanErrorEmbed = new Discord.MessageEmbed()
-        .setColor('#ff5757')
-        .setTitle(`An error has occurred`)
-        .addField(`There was an error while attempting to Ban user ${message.author}`, `${error}`)
-        .setTimestamp()
-        .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
-
-      message.channel.send(banErrorEmbed);
+        message.channel.send(banErrorEmbed);
+      }
     }
   }
   if (message.content.startsWith(`${prefix}help`)) {
@@ -231,7 +244,7 @@ client.on('message', message => {
             .setTimestamp()
             .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
 
-            const AILogEmbed = new Discord.MessageEmbed()
+          const AILogEmbed = new Discord.MessageEmbed()
             .setColor('#ff5757')
             .setTitle(`AI Operation`)
             .setDescription(`A message has been deleted as it was detected for being highly innapropriate`)
@@ -284,11 +297,11 @@ client.on('message', message => {
       if (mode == 'add') {
 
         const BlacklistAddEmbed = new Discord.MessageEmbed()
-        .setColor('#ff5757')
-        .setTitle(`Added User To Global Blacklist`)
-        .addField(`${name}`, `Added By ${message.author}`)
-        .setTimestamp()
-        .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+          .setColor('#ff5757')
+          .setTitle(`Added User To Global Blacklist`)
+          .addField(`${name}`, `Added By ${message.author}`)
+          .setTimestamp()
+          .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
 
         config.discordConfig.users.blacklist.push(name);
         fs.writeFile('config.json', JSON.stringify(config, null, 4), 'utf-8', function (err) {
@@ -298,11 +311,11 @@ client.on('message', message => {
       } else if (mode == 'remove') {
 
         const BlacklistRemoveEmbed = new Discord.MessageEmbed()
-        .setColor('#ff5757')
-        .setTitle(`Removed User From Global Blacklist`)
-        .addField(`${name}`, `Removed By ${message.author}`)
-        .setTimestamp()
-        .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+          .setColor('#ff5757')
+          .setTitle(`Removed User From Global Blacklist`)
+          .addField(`${name}`, `Removed By ${message.author}`)
+          .setTimestamp()
+          .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
 
         config.discordConfig.users.blacklist.splice(config.discordConfig.users.blacklist.indexOf(name), 1);
         fs.writeFile('config.json', JSON.stringify(config, null, 4), 'utf-8', function (err) {
@@ -311,21 +324,21 @@ client.on('message', message => {
         message.channel.send(BlacklistRemoveEmbed);
       } else {
         const IncorrectCommandEmbed = new Discord.MessageEmbed()
-              .setColor('#ff5757')
-              .setTitle(`Incorrect Command Usage`)
-              .addField(`To use this command`, `${config.masterConfig.prefix}blacklist {add / remove} {userID}`)
-              .setTimestamp()
-              .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+          .setColor('#ff5757')
+          .setTitle(`Incorrect Command Usage`)
+          .addField(`To use this command`, `${config.masterConfig.prefix}blacklist {add / remove} {userID}`)
+          .setTimestamp()
+          .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
         message.channel.send(IncorrectCommandEmbed);
       }
     } else {
       console.log(message.author.id)
       const NoPermissionEmbed = new Discord.MessageEmbed()
-              .setColor('#ff5757')
-              .setTitle(`Insufficient Permissions`)
-              .addField(`You do not have access to use this command`, `You must be a SniperBot administrator to use that command`)
-              .setTimestamp()
-              .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+        .setColor('#ff5757')
+        .setTitle(`Insufficient Permissions`)
+        .addField(`You do not have access to use this command`, `You must be a SniperBot administrator to use that command`)
+        .setTimestamp()
+        .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
       message.channel.send(NoPermissionEmbed);
     }
   }
