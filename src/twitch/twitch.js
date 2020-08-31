@@ -1,9 +1,19 @@
 const tmi = require('tmi.js');
 const fs = require('fs');
+const faunadb = require('faunadb');
+const query = faunadb.query;
 const config = require("../config.json");
-const {Wit,log} = require('node-wit');
+const {
+  Wit,
+  log
+} = require('node-wit');
 const client = new tmi.Client(config.twitchConfig);
-const AI = new Wit({accessToken: config.masterConfig.wit_token});
+var DBclient = new faunadb.Client({
+  secret: config.masterConfig.faunadb_token
+})
+const AI = new Wit({
+  accessToken: config.masterConfig.wit_token
+});
 const log4js = require('log4js');
 
 log4js.configure({
@@ -90,36 +100,36 @@ client.on('message', (channel, tags, message, self) => {
   if (message.toLowerCase().startsWith(`${config.masterConfig.prefix}ban`)) {
     var banname = message.split(' ')[1];
     if (banname) {
-    if (isBroadcaster == true) {
-      client.ban(channel, banname, 'banned by ' + tags.username);
-      client.say(channel, banname + ' successfully banned by ' + tags.username);
-    } else if (tags.mod == true) {
-      client.ban(channel, banname, 'banned by ' + tags.username);
-      client.say(channel, banname + ' successfully banned by ' + tags.username);
-    } else if (users.admins.includes(tags.username)) {
-      client.say(channel, 'admin override enabled, user banned');
-      client.ban(channel, banname, 'Banned by sniperbot admin');
-    } else {
-      client.say(channel, '@' + tags.username + ' that command is for moderators only');
+      if (isBroadcaster == true) {
+        client.ban(channel, banname, 'banned by ' + tags.username);
+        client.say(channel, banname + ' successfully banned by ' + tags.username);
+      } else if (tags.mod == true) {
+        client.ban(channel, banname, 'banned by ' + tags.username);
+        client.say(channel, banname + ' successfully banned by ' + tags.username);
+      } else if (users.admins.includes(tags.username)) {
+        client.say(channel, 'admin override enabled, user banned');
+        client.ban(channel, banname, 'Banned by sniperbot admin');
+      } else {
+        client.say(channel, '@' + tags.username + ' that command is for moderators only');
+      }
     }
-  }
   }
   if (message.startsWith(`${config.masterConfig.prefix}unban`)) {
     var unbanname = message.split(' ')[1];
     if (unbanname) {
-    if (isBroadcaster == true) {
-      client.unban(channel, unbanname);
-      client.say(channel, unbanname + ' has been unbanned by ' + tags.username);
-    } else if (tags.mod == true) {
-      client.unban(channel, unbanname);
-      client.say(channel, unbanname + ' has been unbanned by ' + tags.username);
-    } else if (users.admins.includes(tags.username)) {
-      client.say(channel, 'admin override enabled, user unbanned');
-      client.unban(channel, unbanname, 'unbanned by SniperBot Admin');
-    } else {
-      client.say(channel, '@' + tags.username + ' That command is for moderators only')
+      if (isBroadcaster == true) {
+        client.unban(channel, unbanname);
+        client.say(channel, unbanname + ' has been unbanned by ' + tags.username);
+      } else if (tags.mod == true) {
+        client.unban(channel, unbanname);
+        client.say(channel, unbanname + ' has been unbanned by ' + tags.username);
+      } else if (users.admins.includes(tags.username)) {
+        client.say(channel, 'admin override enabled, user unbanned');
+        client.unban(channel, unbanname, 'unbanned by SniperBot Admin');
+      } else {
+        client.say(channel, '@' + tags.username + ' That command is for moderators only')
+      }
     }
-  }
   }
 
   // !blacklist (ability for admins to add or remove blacklisted users and phrases)
@@ -157,10 +167,15 @@ client.on('message', (channel, tags, message, self) => {
       if (config.twitchConfig.channels.includes("#" + senderchannel)) {
         client.say(channel, '@' + tags.username + " SniperBot is already in that channel")
       } else {
-        config.twitchConfig.channels.push("#" + senderchannel);
-        fs.writeFile('src/config.json', JSON.stringify(config, null, 4), 'utf-8', function (err) {
-          if (err) throw err
-        });
+        DBclient.query(
+          query.Create(
+            query.Collection('Twitch_Channels'), {
+              data: {
+                username: tags.username
+              }
+            }
+          )
+        )
         client.say(channel, "Successfully joined channel: " + senderchannel);
         client.join('#' + senderchannel);
       }
