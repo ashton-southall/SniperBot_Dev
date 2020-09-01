@@ -31,14 +31,6 @@ console.log('blacklist loaded: ' + config.twitchConfig.users.blacklist);
 
 client.connect();
 
-// Send a message when Adsnipers joins the chat
-client.on("join", (channel, username, self) => {
-  if (username === 'adsnipers') {
-    client.say(channel, `We're all watching`);
-    client.host('SniperBotOnTwitch', channel);
-  }
-})
-
 client.on('message', (channel, tags, message, self) => {
 
   // Ignore messages sent by the bot
@@ -48,15 +40,23 @@ client.on('message', (channel, tags, message, self) => {
   // Send message to AI
   AI.message(message, {})
     .then((data) => {
-      logger.info(`[${channel}] ${tags.username}: ` + JSON.stringify(data));
-      if (data.intents.name) {
-        if (data.intents[0].name == 'Banned' && data.intents[0].confidence > 0.9) {
+      messageTraits = data.traits;
+      logger.info(`[${channel}] ${tags.username}: ` + JSON.stringify(data))
+      if (messageTraits) {
+        if (data.traits.Insult) {
           logger.info(`Purging Messages From ${tags.username}`);
           client.timeout(channel, tags.username, 1, `AI Timeout, report inaccuracies at https://github.com/Adsnipers/TheSniperBot/issues`);
-          client.say(channel, '@' + tags.username + `[AI Timeout] ${tags.username} has been automatically timed out by SniperBot as it was detected for being Highly innapropriate, Report innacuracies at https://github.com/Adsnipers/TheSniperBot/issues`);
-          AITimeouts.inc();
+        } else if (data.traits.Racism) {
+          logger.info(`Purging Messages From ${tags.username}`);
+          client.timeout(channel, tags.username, 1, `AI Timeout, report inaccuracies at https://github.com/Adsnipers/TheSniperBot/issues`);
+        } else if (data.traits.Threat) {
+          logger.info(`Purging Messages From ${tags.username}`);
+          client.timeout(channel, tags.username, 1, `AI Timeout, report inaccuracies at https://github.com/Adsnipers/TheSniperBot/issues`);
+        } else if (data.traits.Toxicity) {
+          logger.info(`Purging Messages From ${tags.username}`);
+          client.timeout(channel, tags.username, 1, `AI Timeout, report inaccuracies at https://github.com/Adsnipers/TheSniperBot/issues`);
         } else {
-          console.log(data);
+          console.log(data.traits);
         }
       }
     })
