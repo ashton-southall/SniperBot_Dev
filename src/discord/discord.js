@@ -158,12 +158,12 @@ client.on('message', message => {
   if (message.content.startsWith(`${prefix}purge`)) {
     if (message.member.hasPermission(['ADMINISTRATOR'])) {
       purgeAmount = message.content.split(' ')[1]
-      
+
       // Bulk delete messages
       message.channel.bulkDelete(purgeAmount)
         .then(messages => message.channel.send(`Purged ${messages.size} messages`))
         .catch(console.error);
-        
+
     }
   }
   if (message.content.startsWith(`${prefix}ban`)) {
@@ -235,40 +235,89 @@ client.on('message', message => {
     AI.message(message, {})
       .then((data) => {
         logger.info(`[${message.author}]: ${JSON.stringify(data)}`);
-        console.log('Intent: ' + data.intents[0].name + ', Traits: ' + data.traits);
-        if (data.intents[0].name == 'Banned' && data.intents[0].confidence > '0.9') {
-          const AIOperationEmbed = new Discord.MessageEmbed()
-            .setColor('#ff5757')
-            .setTitle(`AI Operation`)
-            .setDescription(`A message has been deleted as it was detected for being highly innapropriate, report any innacuracies at http://bit.ly/SniperBotReport`)
-            .setTimestamp()
-            .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+        const AIOperationEmbed = new Discord.MessageEmbed()
+          .setColor('#ff5757')
+          .setTitle(`AI Operation`)
+          .setDescription(`A message has been deleted as it was detected for being highly innapropriate, report any innacuracies at http://bit.ly/SniperBotReport`)
+          .setTimestamp()
+          .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
 
-          const AILogEmbed = new Discord.MessageEmbed()
-            .setColor('#ff5757')
-            .setTitle(`AI Operation`)
-            .setDescription(`A message has been deleted as it was detected for being highly innapropriate`)
-            .addFields({
-              name: `Message Content`,
-              value: message
-            }, {
-              name: `Sender ID`,
-              value: message.author.id
-            }, {
-              name: `More Info`,
-              value: `**Channel**\r${message.channel} (${message.channel.id})\r**Server** \r${message.guild} (${message.guild.id})`
-            }, {
-              name: `AI Response`,
-              value: `${data.intents[0].name}: ${data.intents[0].confidence}% Confidence`
-            })
-            .setTimestamp()
-            .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
-
+        const AILogEmbed = new Discord.MessageEmbed()
+          .setColor('#ff5757')
+          .setTitle(`AI Operation`)
+          .setDescription(`A message has been deleted as it was detected for being highly innapropriate`)
+          .addFields({
+            name: `Message Content`,
+            value: message
+          }, {
+            name: `Sender ID`,
+            value: message.author.id
+          }, {
+            name: `More Info`,
+            value: `**Channel**\r${message.channel} (${message.channel.id})\r**Server** \r${message.guild} (${message.guild.id})`
+          }, {
+            name: `AI Response`,
+            value: `${data.intents[0].name}: ${data.intents[0].confidence}% Confidence`
+          })
+          .setTimestamp()
+          .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+        if (data.traits.Insult) {
           logger.info(`Deleting previous message from ${message.author}`);
           message.channel.send(AIOperationEmbed);
           client.channels.cache.get("748068812448071750").send(AILogEmbed);
           message.delete().then(() => {
-            console.log(`Successfully deleted message`);
+            console.log(`Deleted message for: Insult`);
+          }).catch((error) => {
+
+            const AIOperationErrorEmbed = new Discord.MessageEmbed()
+              .setColor('#ff5757')
+              .setTitle(`An error has occurred`)
+              .addField(`There was an error while attempting delete a message`, `${error}`)
+              .setTimestamp()
+              .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+
+            message.channel.send(AIOperationErrorEmbed);
+          })
+        } else if (data.traits.Racism) {
+          logger.info(`Deleting previous message from ${message.author}`);
+          message.channel.send(AIOperationEmbed);
+          client.channels.cache.get("748068812448071750").send(AILogEmbed);
+          message.delete().then(() => {
+            console.log(`Deleted message for: Racism`);
+          }).catch((error) => {
+
+            const AIOperationErrorEmbed = new Discord.MessageEmbed()
+              .setColor('#ff5757')
+              .setTitle(`An error has occurred`)
+              .addField(`There was an error while attempting delete a message`, `${error}`)
+              .setTimestamp()
+              .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+
+            message.channel.send(AIOperationErrorEmbed);
+          })
+        } else if (data.traits.Threat) {
+          logger.info(`Deleting previous message from ${message.author}`);
+          message.channel.send(AIOperationEmbed);
+          client.channels.cache.get("748068812448071750").send(AILogEmbed);
+          message.delete().then(() => {
+            console.log(`Deleted message for: Threat`);
+          }).catch((error) => {
+
+            const AIOperationErrorEmbed = new Discord.MessageEmbed()
+              .setColor('#ff5757')
+              .setTitle(`An error has occurred`)
+              .addField(`There was an error while attempting delete a message`, `${error}`)
+              .setTimestamp()
+              .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+
+            message.channel.send(AIOperationErrorEmbed);
+          })
+        } else if (data.traits.Toxicity) {
+          logger.info(`Deleting previous message from ${message.author}`);
+          message.channel.send(AIOperationEmbed);
+          client.channels.cache.get("748068812448071750").send(AILogEmbed);
+          message.delete().then(() => {
+            console.log(`Deleted message for: Toxicity`);
           }).catch((error) => {
 
             const AIOperationErrorEmbed = new Discord.MessageEmbed()
