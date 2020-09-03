@@ -40,9 +40,8 @@ client.on('message', (channel, tags, message, self) => {
   // Send message to AI
   AI.message(message, {})
     .then((data) => {
-      messageTraits = data.traits;
       logger.info(`[${channel}] ${tags.username}: ` + JSON.stringify(data))
-      if (messageTraits) {
+      if (data.traits) {
         if (data.traits.Insult) {
           logger.info(`Purging Messages From ${tags.username}`);
           client.timeout(channel, tags.username, 1, `AI Timeout, report inaccuracies at https://github.com/Adsnipers/TheSniperBot/issues`);
