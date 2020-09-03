@@ -31,14 +31,6 @@ console.log('blacklist loaded: ' + config.twitchConfig.users.blacklist);
 
 client.connect();
 
-// Send a message when Adsnipers joins the chat
-client.on("join", (channel, username, self) => {
-  if (username === 'adsnipers') {
-    client.say(channel, `We're all watching`);
-    client.host('SniperBotOnTwitch', channel);
-  }
-})
-
 client.on('message', (channel, tags, message, self) => {
 
   // Ignore messages sent by the bot
@@ -48,17 +40,22 @@ client.on('message', (channel, tags, message, self) => {
   // Send message to AI
   AI.message(message, {})
     .then((data) => {
-      logger.info(`[${channel}] ${tags.username}: ` + JSON.stringify(data));
-      if (data) {
-        console.log(data);
-        if (data.intents[0].name == 'Banned' && data.intents[0].confidence > 0.9) {
+      logger.info(`[${channel}] ${tags.username}: ` + JSON.stringify(data))
+      if (data.traits) {
+        if (data.traits.Insult) {
           logger.info(`Purging Messages From ${tags.username}`);
           client.timeout(channel, tags.username, 1, `AI Timeout, report inaccuracies at https://bit.ly/SniperBotReport`);
-          client.say(channel, `[AI Timeout] ${tags.username} has been automatically timed out by SniperBot as it was detected for being Highly innapropriate, Report innacuracies at https://bit.ly/SniperBotReport`);
-        } if (data.intents[0].name == 'bot_message' && data.intents[0].confidence > 0.9) {
-          client.timeout(channel, tags.username, 1, 'AI Timeout (Message Detected as Bot_Message), report inaccuracies at https://bit.ly/SniperBotReport`');
+        } else if (data.traits.Racism) {
+          logger.info(`Purging Messages From ${tags.username}`);
+          client.timeout(channel, tags.username, 1, `AI Timeout, report inaccuracies at https://bit.ly/SniperBotReport`);
+        } else if (data.traits.Threat) {
+          logger.info(`Purging Messages From ${tags.username}`);
+          client.timeout(channel, tags.username, 1, `AI Timeout, report inaccuracies at https://bit.ly/SniperBotReport`);
+        } else if (data.traits.Toxicity) {
+          logger.info(`Purging Messages From ${tags.username}`);
+          client.timeout(channel, tags.username, 1, `AI Timeout, report inaccuracies at https://bit.ly/SniperBotReport`);
         } else {
-          console.log(data);
+          console.log(data.traits);
         }
       } else {
         console.log(data);
