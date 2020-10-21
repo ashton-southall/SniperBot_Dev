@@ -37,26 +37,40 @@ client.on('message', (channel, tags, message, self) => {
   if (self) return;
 
   // AI Moderation
+  // AI Moderation Settings
+  ActionConfidence = '0.9';
+  AutomatedActionReason = `Message automatically purged by SniperBot. report inaccuracies at https://github.com/Adsnipers/TheSniperBot/issues`;
   // Send message to AI
   AI.message(message, {})
     .then((data) => {
+      console.log(data);
       logger.info(`[${channel}] ${tags.username}: ` + JSON.stringify(data))
-      if (data.traits) {
-        if (data.traits.Insult) {
+      if (data.intents) {
+        console.log(`Data intents detected`);
+        if (data.intents[0].name == 'bot_message' && data.intents[0].confidence > ActionConfidence) {
+          console.log(data.intents.name);
           logger.info(`Purging Messages From ${tags.username}`);
-          client.timeout(channel, tags.username, 1, `AI Timeout, report inaccuracies at https://github.com/Adsnipers/TheSniperBot/issues`);
-        } else if (data.traits.Racism) {
-          logger.info(`Purging Messages From ${tags.username}`);
-          client.timeout(channel, tags.username, 1, `AI Timeout, report inaccuracies at https://github.com/Adsnipers/TheSniperBot/issues`);
-        } else if (data.traits.Threat) {
-          logger.info(`Purging Messages From ${tags.username}`);
-          client.timeout(channel, tags.username, 1, `AI Timeout, report inaccuracies at https://github.com/Adsnipers/TheSniperBot/issues`);
-        } else if (data.traits.Toxicity) {
-          logger.info(`Purging Messages From ${tags.username}`);
-          client.timeout(channel, tags.username, 1, `AI Timeout, report inaccuracies at https://github.com/Adsnipers/TheSniperBot/issues`);
-        } else {
-          console.log(data.traits);
+          client.timeout(channel, tags.username, 1, `Bot message prevented by SniperBot, report inaccuracies at https://github.com/Adsnipers/TheSniperBot/issues`);
         }
+        if (data.intents[0].name = 'banned' && data.intents[0].confidence > ActionConfidence) {
+        if (data.traits) {
+          if (data.traits.Insult) {
+            logger.info(`Purging Messages From ${tags.username}`);
+            client.timeout(channel, tags.username, 1, AutomatedActionReason);
+          } else if (data.traits.Racism) {
+            logger.info(`Purging Messages From ${tags.username}`);
+            client.timeout(channel, tags.username, 1, AutomatedActionReason);
+          } else if (data.traits.Threat) {
+            logger.info(`Purging Messages From ${tags.username}`);
+            client.timeout(channel, tags.username, 1, AutomatedActionReason);
+          } else if (data.traits.Toxicity) {
+            logger.info(`Purging Messages From ${tags.username}`);
+            client.timeout(channel, tags.username, 1, AutomatedActionReason);
+          } else {
+            console.log(data);
+          }
+        }
+      }
       }
     })
     .catch(console.error);

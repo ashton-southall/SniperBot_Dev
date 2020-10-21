@@ -230,10 +230,15 @@ client.on('message', message => {
   }
 
   // AI Moderation
+  // AI Moderation Settings
+  ActionConfidence = '0.9';
+  AutomatedActionReason = `Message automatically purged by SniperBot. report inaccuracies at https://github.com/Adsnipers/TheSniperBot/issues`;
   // Send message to AI
   if (message.channel.nsfw == !true) {
     AI.message(message, {})
       .then((data) => {
+        console.log(data);
+        if (data.intents[0].name = 'Banned' && data.intents[0].confidence > ActionConfidence) {
         logger.info(`[${message.author}]: ${JSON.stringify(data)}`);
         const AIOperationEmbed = new Discord.MessageEmbed()
           .setColor('#ff5757')
@@ -329,14 +334,17 @@ client.on('message', message => {
 
             message.channel.send(AIOperationErrorEmbed);
           })
+        
         } else {
           console.log(data);
+        }
         }
       })
       .catch(console.error);
   } else {
 
   }
+
 
   // !blacklist (ability for admins to add or remove blacklisted users and phrases)
   if (message.content.startsWith(`${config.masterConfig.prefix}blacklist`)) {
