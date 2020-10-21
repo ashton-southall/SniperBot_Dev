@@ -20,7 +20,7 @@ log4js.configure({
   appenders: {
     discord: {
       type: 'file',
-      filename: 'logs/discord.log'
+      filename: 'src/logs/discord.log'
     }
   },
   categories: {
@@ -269,7 +269,7 @@ client.on('message', message => {
       .then((data) => {
         console.log(data);
         if (data.intents[0].name = 'Banned' && data.intents[0].confidence > ActionConfidence) {
-        logger.info(`[${message.author}]: ${JSON.stringify(data)}`);
+
 
         // Embed to send when an AI Operation has occurred
         const AIOperationEmbed = new Discord.MessageEmbed()
@@ -320,7 +320,7 @@ client.on('message', message => {
           })
           // If wit returns Racism trait
         } else if (data.traits.Racism) {
-          logger.info(`Deleting previous message from ${message.author}`);
+          logger.info(`Racism detected in message, Deleting previous message from ${message.author}`);
           message.channel.send(AIOperationEmbed);
           client.channels.cache.get("748068812448071750").send(AILogEmbed);
           message.delete().then(() => {
@@ -339,7 +339,7 @@ client.on('message', message => {
 
           // If wit returns Threat trait
         } else if (data.traits.Threat) {
-          logger.info(`Deleting previous message from ${message.author}`);
+          logger.info(`Threat detected in message, Deleting previous message from ${message.author}`);
           message.channel.send(AIOperationEmbed);
           client.channels.cache.get("748068812448071750").send(AILogEmbed);
           message.delete().then(() => {
@@ -358,7 +358,7 @@ client.on('message', message => {
 
           // If wit returns toxicity trait
         } else if (data.traits.Toxicity) {
-          logger.info(`Deleting previous message from ${message.author}`);
+          logger.info(`Toxicity detected in message, Deleting previous message from ${message.author}`);
           message.channel.send(AIOperationEmbed);
           client.channels.cache.get("748068812448071750").send(AILogEmbed);
           message.delete().then(() => {

@@ -44,27 +44,26 @@ client.on('message', (channel, tags, message, self) => {
   AI.message(message, {})
     .then((data) => {
       console.log(data);
-      logger.info(`[${channel}] ${tags.username}: ` + JSON.stringify(data))
       if (data.intents) {
         console.log(`Data intents detected`);
         if (data.intents[0].name == 'bot_message' && data.intents[0].confidence > ActionConfidence) {
           console.log(data.intents.name);
-          logger.info(`Purging Messages From ${tags.username}`);
+          logger.info(`Detected bot_message from ${tags.username}, purging messages from user`);
           client.timeout(channel, tags.username, 1, `Bot message prevented by SniperBot, report inaccuracies at https://bit.ly/SniperBotReport`);
         }
         if (data.intents[0].name = 'banned' && data.intents[0].confidence > ActionConfidence) {
         if (data.traits) {
           if (data.traits.Insult) {
-            logger.info(`Purging Messages From ${tags.username}`);
+            logger.info(`Insult detected in message, Purging Messages From ${tags.username}`);
             client.timeout(channel, tags.username, 1, AutomatedActionReason);
           } else if (data.traits.Racism) {
-            logger.info(`Purging Messages From ${tags.username}`);
+            logger.info(`Racism detected in message, Purging Messages From ${tags.username}`);
             client.timeout(channel, tags.username, 1, AutomatedActionReason);
           } else if (data.traits.Threat) {
-            logger.info(`Purging Messages From ${tags.username}`);
+            logger.info(`Threat detected in message, Purging Messages From ${tags.username}`);
             client.timeout(channel, tags.username, 1, AutomatedActionReason);
           } else if (data.traits.Toxicity) {
-            logger.info(`Purging Messages From ${tags.username}`);
+            logger.info(`Toxicity detected in message, Purging Messages From ${tags.username}`);
             client.timeout(channel, tags.username, 1, AutomatedActionReason);
           } else {
             console.log(data);
