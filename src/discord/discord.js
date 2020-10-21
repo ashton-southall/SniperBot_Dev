@@ -13,6 +13,9 @@ var nextactivity = '1';
 const log4js = require('log4js');
 const fs = require('fs')
 
+// Configure Log4JS
+// Logs messages to an external file for review
+// External files located at src/logs
 log4js.configure({
   appenders: {
     discord: {
@@ -30,7 +33,8 @@ log4js.configure({
 var logger = log4js.getLogger('discord');
 logger.level = 'info';
 
-
+// Configure WIT
+// ChatBot AI used to return message information
 const {
   Wit,
   log
@@ -39,17 +43,21 @@ const AI = new Wit({
   accessToken: config.masterConfig.wit_token
 });
 
-
+// When ready
+// Console.log Config info: Admins and Blacklist
 client.once('ready', () => {
   console.log('Sniperbot Discord Ready');
   console.log('Discord Admins: ' + config.discordConfig.users.admins);
   console.log('Discord Blacklist: ' + config.discordConfig.users.blacklist);
+  // Set Bot's activity
+  // AKA the "Playing" text under the Bot's name
   setInterval(() => {
     client.user.setActivity(activity, {
       type: activity_type
     });
   }, 10000)
 })
+// Login with Token
 client.login(token);
 
 client.on('message', message => {
@@ -57,9 +65,10 @@ client.on('message', message => {
   if (message.author.bot) return;
 
   // Direct Message Communication
-  // Redirect Revieved DMs
+  // Redirect Revieved DMs to SniperBot server's adminchat
   if (message.channel.type == "dm") {
 
+    // Embed that will be sent to a user after SniperBot recieves a DM
     const DMReplyEmbed = new Discord.MessageEmbed()
       .setColor('#ff5757')
       .setTitle(`Thanks for your message, I'll pass it on to my creators`)
@@ -68,6 +77,7 @@ client.on('message', message => {
       .setTimestamp()
       .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
 
+      // Embed that will be sent to the SniperBot server containing the DM
     const NewMessageEmbed = new Discord.MessageEmbed()
       .setColor('#ff5757')
       .setTitle(`New Message`)
@@ -80,9 +90,11 @@ client.on('message', message => {
     return;
   }
 
+  // Check Blacklist for ID of sender, if the ID matches one on the Blacklist kick the user from the server
   if (config.discordConfig.users.blacklist.includes(message.member.id)) {
     message.member.kick().then((member) => {
 
+      // Embed to be sent after kicking a blacklisted user
       const blacklistKickEmbed = new Discord.MessageEmbed()
         .setColor('#ff5757')
         .setTitle(`User Kicked`)
@@ -90,6 +102,7 @@ client.on('message', message => {
         .setTimestamp()
         .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
 
+      // Embed to be sent to a blacklisted user user after they've been kicked
       const BlacklistDMEmbed = new Discord.MessageEmbed()
         .setColor('#ff5757')
         .setTitle(`You've been kicked Kicked`)
@@ -116,6 +129,7 @@ client.on('message', message => {
       message.author.send(BlacklistDMEmbed);
     }).catch((error) => {
 
+      // Embed to be sent if an error has occurred
       const BlacklistErrorEmbed = new Discord.MessageEmbed()
         .setColor('#ff5757')
         .setTitle(`An error has occurred`)
@@ -126,13 +140,15 @@ client.on('message', message => {
       message.channel.send(BlacklistErrorEmbed);
     })
   }
-
+  // Kick command
+  // Can only be used by members with kick permissions
   if (message.content.startsWith(`${prefix}kick`)) {
     if (message.member.hasPermission(['KICK_MEMBERS'])) {
       let member = message.mentions.members.first();
       if (member) {
         member.kick().then((member) => {
 
+          // Embed to be sent when kicking a user
           const UserKickedEmbed = new Discord.MessageEmbed()
             .setColor('#ff5757')
             .setTitle(`User Kicked`)
@@ -144,6 +160,7 @@ client.on('message', message => {
         })
       } else {
 
+        // Embed to be sent if an error occurrs
         const KickErrorEmbed = new Discord.MessageEmbed()
           .setColor('#ff5757')
           .setTitle(`An error has occurred`)
@@ -155,6 +172,10 @@ client.on('message', message => {
       }
     }
   }
+
+  // Purge command
+  // !purge [number of messages to purge]
+  // Deletes a set amount of messages
   if (message.content.startsWith(`${prefix}purge`)) {
     if (message.member.hasPermission(['ADMINISTRATOR'])) {
       purgeAmount = message.content.split(' ')[1]
@@ -166,6 +187,10 @@ client.on('message', message => {
 
     }
   }
+
+  // Ban command
+  // !ban [user]
+  // Ban a user from the server, can only be used by members with ban permissions
   if (message.content.startsWith(`${prefix}ban`)) {
     if (message.member.hasPermission(['BAN_MEMBERS'])) {
       let member = message.mentions.members.first();
@@ -193,8 +218,13 @@ client.on('message', message => {
       }
     }
   }
+
+  // Help Command
+  // !help
+  // Displays a list of commands and more information
   if (message.content.startsWith(`${prefix}help`)) {
 
+    // Embed to send as reply
     const HelpEmbed = new Discord.MessageEmbed()
       .setColor('#ff5757')
       .setThumbnail(`https://i.imgur.com/WFj42aM.png`)
@@ -204,7 +234,7 @@ client.on('message', message => {
         value: `Note: These commands can only be used by SniperBot Admins\r ${config.masterConfig.prefix}blacklist {add / remove} {userID}`
       }, {
         name: `Server Admin Commands`,
-        value: `${config.masterConfig.prefix}ban {mention_member}\r${config.masterConfig.prefix}kick {mention_member}`
+        value: `${config.masterConfig.prefix}ban {mention_member}\r${config.masterConfig.prefix}kick {mention_member}\r${config.masterConfig.prefix}purge {number}`
       }, {
         name: `User Commands`,
         value: `${config.masterConfig.prefix}help - Shows this`
@@ -232,7 +262,7 @@ client.on('message', message => {
   // AI Moderation
   // AI Moderation Settings
   ActionConfidence = '0.9';
-  AutomatedActionReason = `Message automatically purged by SniperBot. report inaccuracies at https://github.com/Adsnipers/TheSniperBot/issues`;
+  AutomatedActionReason = `Message automatically purged by SniperBot. report inaccuracies at https://bit.ly/SniperBotReport`;
   // Send message to AI
   if (message.channel.nsfw == !true) {
     AI.message(message, {})
@@ -240,6 +270,8 @@ client.on('message', message => {
         console.log(data);
         if (data.intents[0].name = 'Banned' && data.intents[0].confidence > ActionConfidence) {
         logger.info(`[${message.author}]: ${JSON.stringify(data)}`);
+
+        // Embed to send when an AI Operation has occurred
         const AIOperationEmbed = new Discord.MessageEmbed()
           .setColor('#ff5757')
           .setTitle(`AI Operation`)
@@ -247,6 +279,7 @@ client.on('message', message => {
           .setTimestamp()
           .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
 
+        // Embed to send to the logs channel in the SniperBot discord server
         const AILogEmbed = new Discord.MessageEmbed()
           .setColor('#ff5757')
           .setTitle(`AI Operation`)
@@ -266,6 +299,8 @@ client.on('message', message => {
           })
           .setTimestamp()
           .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+
+        // If Wit returns Insult trait
         if (data.traits.Insult) {
           logger.info(`Deleting previous message from ${message.author}`);
           message.channel.send(AIOperationEmbed);
@@ -283,6 +318,7 @@ client.on('message', message => {
 
             message.channel.send(AIOperationErrorEmbed);
           })
+          // If wit returns Racism trait
         } else if (data.traits.Racism) {
           logger.info(`Deleting previous message from ${message.author}`);
           message.channel.send(AIOperationEmbed);
@@ -300,6 +336,8 @@ client.on('message', message => {
 
             message.channel.send(AIOperationErrorEmbed);
           })
+
+          // If wit returns Threat trait
         } else if (data.traits.Threat) {
           logger.info(`Deleting previous message from ${message.author}`);
           message.channel.send(AIOperationEmbed);
@@ -317,6 +355,8 @@ client.on('message', message => {
 
             message.channel.send(AIOperationErrorEmbed);
           })
+
+          // If wit returns toxicity trait
         } else if (data.traits.Toxicity) {
           logger.info(`Deleting previous message from ${message.author}`);
           message.channel.send(AIOperationEmbed);
@@ -390,6 +430,8 @@ client.on('message', message => {
       }
     } else {
       console.log(message.author.id)
+
+      // Embed to send if a user doesnt have permission to do an action
       const NoPermissionEmbed = new Discord.MessageEmbed()
         .setColor('#ff5757')
         .setTitle(`Insufficient Permissions`)

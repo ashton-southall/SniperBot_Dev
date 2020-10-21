@@ -50,7 +50,7 @@ client.on('message', (channel, tags, message, self) => {
         if (data.intents[0].name == 'bot_message' && data.intents[0].confidence > ActionConfidence) {
           console.log(data.intents.name);
           logger.info(`Purging Messages From ${tags.username}`);
-          client.timeout(channel, tags.username, 1, `Bot message prevented by SniperBot, report inaccuracies at https://github.com/Adsnipers/TheSniperBot/issues`);
+          client.timeout(channel, tags.username, 1, `Bot message prevented by SniperBot, report inaccuracies at https://bit.ly/SniperBotReport`);
         }
         if (data.intents[0].name = 'banned' && data.intents[0].confidence > ActionConfidence) {
         if (data.traits) {
