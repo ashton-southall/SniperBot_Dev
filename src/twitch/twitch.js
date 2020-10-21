@@ -47,28 +47,39 @@ client.on('message', (channel, tags, message, self) => {
   if (self) return;
 
   // AI Moderation
+  // AI Moderation Settings
+  ActionConfidence = '0.9';
+  AutomatedActionReason = `Message automatically purged by SniperBot. report inaccuracies at https://github.com/Adsnipers/TheSniperBot/issues`;
   // Send message to AI
   AI.message(message, {})
     .then((data) => {
-      logger.info(`[${channel}] ${tags.username}: ` + JSON.stringify(data))
-      if (data.traits) {
-        if (data.traits.Insult) {
-          logger.info(`Purging Messages From ${tags.username}`);
-          client.timeout(channel, tags.username, 1, `AI Timeout, report inaccuracies at https://bit.ly/SniperBotReport`);
-        } else if (data.traits.Racism) {
-          logger.info(`Purging Messages From ${tags.username}`);
-          client.timeout(channel, tags.username, 1, `AI Timeout, report inaccuracies at https://bit.ly/SniperBotReport`);
-        } else if (data.traits.Threat) {
-          logger.info(`Purging Messages From ${tags.username}`);
-          client.timeout(channel, tags.username, 1, `AI Timeout, report inaccuracies at https://bit.ly/SniperBotReport`);
-        } else if (data.traits.Toxicity) {
-          logger.info(`Purging Messages From ${tags.username}`);
-          client.timeout(channel, tags.username, 1, `AI Timeout, report inaccuracies at https://bit.ly/SniperBotReport`);
-        } else {
-          console.log(data.traits);
+      console.log(data);
+      if (data.intents) {
+        console.log(`Data intents detected`);
+        if (data.intents[0].name == 'bot_message' && data.intents[0].confidence > ActionConfidence) {
+          console.log(data.intents.name);
+          logger.info(`Detected bot_message from ${tags.username}, purging messages from user`);
+          client.timeout(channel, tags.username, 1, `Bot message prevented by SniperBot, report inaccuracies at https://bit.ly/SniperBotReport`);
         }
-      } else {
-        console.log(data);
+        if (data.intents[0].name = 'banned' && data.intents[0].confidence > ActionConfidence) {
+        if (data.traits) {
+          if (data.traits.Insult) {
+            logger.info(`Insult detected in message, Purging Messages From ${tags.username}`);
+            client.timeout(channel, tags.username, 1, AutomatedActionReason);
+          } else if (data.traits.Racism) {
+            logger.info(`Racism detected in message, Purging Messages From ${tags.username}`);
+            client.timeout(channel, tags.username, 1, AutomatedActionReason);
+          } else if (data.traits.Threat) {
+            logger.info(`Threat detected in message, Purging Messages From ${tags.username}`);
+            client.timeout(channel, tags.username, 1, AutomatedActionReason);
+          } else if (data.traits.Toxicity) {
+            logger.info(`Toxicity detected in message, Purging Messages From ${tags.username}`);
+            client.timeout(channel, tags.username, 1, AutomatedActionReason);
+          } else {
+            console.log(data);
+          }
+        }
+      }
       }
     })
     .catch(console.error);
