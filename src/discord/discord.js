@@ -183,7 +183,7 @@ client.on('message', message => {
       // Bulk delete messages
       message.channel.bulkDelete(purgeAmount)
         .then(messages => message.channel.send(`Purged ${messages.size} messages`))
-        .catch(console.error);
+        .catch(message.channel.send('An error occurred while trying to purge messages, please remember you can only purge messages under 14 days old'))
 
     }
   }
