@@ -5,9 +5,8 @@ const {Wit,log} = require('node-wit');
 const client = new tmi.Client(config.twitchConfig);
 
 // DB Storage Notes
-// Possible solutions:
-// Recreate twitch configuration in script (exclude tokens) [Best so far]
-// Run DB query, write query to configuration file then run TMI client [complicated and wastes precious reads/writes to server]
+// Best current solution:
+// Recreate twitch configuration in script (exclude tokens)
 
 const AI = new Wit({accessToken: config.masterConfig.wit_token});
 const log4js = require('log4js');
