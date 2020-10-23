@@ -4,6 +4,31 @@ const config = require("../config.json");
 const {Wit,log} = require('node-wit');
 const client = new tmi.Client(config.twitchConfig);
 
+let options = {
+  options: {
+    debug: true
+},
+connection: {
+    reconnect: true
+},
+identity: {
+    username: config.twitchConfig.connection.username,
+    password: config.twitchConfig.connection.password
+},
+channels: [
+    "#sniperbotontwitch"
+],
+users: {
+    admins: [
+        "adsnipers"
+    ],
+    blacklist: [
+        "natanael911"
+    ]
+},
+"blacklist_ban_reason": "Automatically Removed By SniperBot: Blacklisted",
+"blacklist_ban_time": 86400
+}
 // DB Storage Notes
 // Best current solution:
 // Recreate twitch configuration in script (exclude tokens)
