@@ -10,10 +10,10 @@ var channelList; // Declare channelList variable
 
 // Query DB for user info
 const fauna = new faunadb.Client({ secret: config.masterConfig.faunadb_token }); // Create FaunaDB client
-const channels = fauna.paginate(q.Match(q.Index("channels"), "true")) // Query FaunaDB database for channel list => create constant called users containing results
+const channels = fauna.paginate(q.Match(q.Index("twitchChannels"), "true")) // Query FaunaDB database for channel list => create constant called users containing results
 channels.each(function (page) { channelList = page }) // Page FaunaDB results => set channelList variable to those results
 
-setTimeout(function () { // Start twitch bot | Waits a set amount of time before calling variables from FaunaDB to ensure variables
+setTimeout(function () { // Startup | Create all clients and load all settings
 
   // TMI.js Options (links back to cinfig.json for most options)
   let options = {
@@ -32,33 +32,34 @@ setTimeout(function () { // Start twitch bot | Waits a set amount of time before
   };
 
   const TMI = new tmi.Client(options) // Create New TMI Client
+  const AI = new Wit({accessToken: config.masterConfig.wit_token}); // Create AI client
 
   // Log to confirm data loaded
   console.log(`Admins loaded: `) // Display all admin usernames
   console.log(`Channels loaded: ${channelList}`) // Display all channel names
   console.log(`Blacklist loaded: `) // Display all blacklisted usernames
 
+  // Log4JS Options
+  log4js.configure({
+    appenders: {
+      twitch: {
+        type: 'file',
+        filename: '/src/logs/twitch.log'
+      }
+    },
+    categories: {
+      default: {
+        appenders: ['twitch'],
+        level: 'info'
+      }
+    }
+  })
+  var logger = log4js.getLogger('twitch');
+  logger.level = 'info';
+
   TMI.connect(); // Connect to twitch servers and join all channels
 
 }, 2000); // End of setTimeout function
 
-// Log4JS Options
-log4js.configure({
-  appenders: {
-    twitch: {
-      type: 'file',
-      filename: '/src/logs/twitch.log'
-    }
-  },
-  categories: {
-    default: {
-      appenders: ['twitch'],
-      level: 'info'
-    }
-  }
-})
-var logger = log4js.getLogger('twitch');
-logger.level = 'info';
 
-// Create AI client
-const AI = new Wit({accessToken: config.masterConfig.wit_token}); // Create new WIT.AI client using accessToken in config.json
+
