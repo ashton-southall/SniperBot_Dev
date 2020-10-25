@@ -1,10 +1,7 @@
 // Imports
 const tmi = require("tmi.js"); // TMI (Twitch bot library)
 const config = require('../config.json'); // Config File (Contains Secrets)
-const {
-  Wit,
-  log
-} = require('node-wit'); // WIT.AI (AI System for reading messages)
+const { Wit,  log } = require('node-wit'); // WIT.AI (AI System for reading messages)
 const log4js = require('log4js'); // Log4JS (Creates logs for bot actions)
 const faunadb = require('faunadb') // FaunaDB (Data Storage)
 const q = faunadb.query;
@@ -12,13 +9,14 @@ const q = faunadb.query;
 var channelList; // Declare channelList variable
 
 // Query DB for user info
-const fauna = new faunadb.Client({secret: config.masterConfig.faunadb_token}); // Create FaunaDB client
+const fauna = new faunadb.Client({ secret: config.masterConfig.faunadb_token }); // Create FaunaDB client
 const channels = fauna.paginate(q.Match(q.Index("channels"), "true")) // Query FaunaDB database for channel list => create constant called users containing results
-channels.each(function (page) {channelList = `${JSON.stringify(page)}`}) // Page FaunaDB results => set channelList variable to those results
+channels.each(function (page) { channelList = page }) // Page FaunaDB results => set channelList variable to those results
 
 setTimeout(function () {
 
   // TMI.js Options (links back to cinfig.json for most options)
+
   let options = {
     options: {
       debug: config.twitchConfig.options.debug
@@ -31,7 +29,7 @@ setTimeout(function () {
       username: config.twitchConfig.connection.username,
       password: config.twitchConfig.connection.password
     },
-    channels: `${channelList}` // FaunaDB query results
+    channels: channelList // FaunaDB query results
   };
 
   const TMI = new tmi.Client(options) // Create New TMI Client
@@ -44,10 +42,6 @@ setTimeout(function () {
   TMI.connect(); // Connect to twitch servers and join all channels
 
 }, 2000); // End of setTimeout function
-
-
-
-
 
 // Log4JS Options
 log4js.configure({
@@ -68,6 +62,4 @@ var logger = log4js.getLogger('twitch');
 logger.level = 'info';
 
 // Create AI client
-const AI = new Wit({
-  accessToken: config.masterConfig.wit_token
-}); // Create new WIT.AI client using accessToken in config.json
+const AI = new Wit({accessToken: config.masterConfig.wit_token}); // Create new WIT.AI client using accessToken in config.json
