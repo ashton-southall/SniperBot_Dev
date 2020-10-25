@@ -13,10 +13,9 @@ const fauna = new faunadb.Client({ secret: config.masterConfig.faunadb_token });
 const channels = fauna.paginate(q.Match(q.Index("channels"), "true")) // Query FaunaDB database for channel list => create constant called users containing results
 channels.each(function (page) { channelList = page }) // Page FaunaDB results => set channelList variable to those results
 
-setTimeout(function () {
+setTimeout(function () { // Start twitch bot | Waits a set amount of time before calling variables from FaunaDB to ensure variables
 
   // TMI.js Options (links back to cinfig.json for most options)
-
   let options = {
     options: {
       debug: config.twitchConfig.options.debug
