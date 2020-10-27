@@ -3,17 +3,27 @@ const tmi = require("tmi.js"); // TMI (Twitch bot library)
 const config = require('../config.json'); // Config File (Contains Secrets)
 const { Wit,  log } = require('node-wit'); // WIT.AI (AI System for reading messages)
 const log4js = require('log4js'); // Log4JS (Creates logs for bot actions)
-const faunadb = require('faunadb') // FaunaDB (Data Storage)
+const faunadb = require('faunadb'); // FaunaDB (Data Storage)
 const q = faunadb.query;
 
 var channelList; // Declare channelList variable
-
+var globalConfig;
 // Query DB for user info
 const fauna = new faunadb.Client({ secret: config.masterConfig.faunadb_token }); // Create FaunaDB client
-const channels = fauna.paginate(q.Match(q.Index("twitchChannels"), "true")) // Query FaunaDB database for channel list => create constant called users containing results
-channels.each(function (page) { channelList = page }) // Page FaunaDB results => set channelList variable to those results
+const channels = fauna.paginate(q.Match(q.Index("twitchChannels"), "true")); // Query FaunaDB database for channel list
+fauna.query(q.Get(q.Ref(q.Collection('options'), '280347959557620236'))).then((ret) => globalConfig = ret)
+channels.each(function (page) { channelList = page }); // Page FaunaDB results => set channelList variable to those results
 
-setTimeout(function () { // Startup | Create all clients and load all settings
+
+
+setTimeout(function () { // Main script | Delayed to cater for Database Response time
+
+  if (!channelList) {
+    throw new Error(`Failed to load database info: "channelList" on time`);
+  }
+  if (!globalConfig) {
+    throw new Error(`Failed to load database info: "options" on time`);
+  }
 
   // TMI.js Options (links back to cinfig.json for most options)
   let options = {
@@ -35,7 +45,7 @@ setTimeout(function () { // Startup | Create all clients and load all settings
   const AI = new Wit({accessToken: config.masterConfig.wit_token}); // Create AI client
 
   // Log to confirm data loaded
-  console.log(`Admins loaded: `) // Display all admin usernames
+  console.log(`Global Configuration Loaded: ${globalConfig}`) // Display all admin usernames
   console.log(`Channels loaded: ${channelList}`) // Display all channel names
   console.log(`Blacklist loaded: `) // Display all blacklisted usernames
 
@@ -59,7 +69,36 @@ setTimeout(function () { // Startup | Create all clients and load all settings
 
   TMI.connect(); // Connect to twitch servers and join all channels
 
+  TMI.on('message', (channel, tags, message, self) => {
+    if (self) return; // Ignore messages sent by SniperBot
+    console.log(`${channel} | ${tags.username} | ${message} || Self: ${self}`) // Log message Contents
+    AI.message(message) // Send Message Contents to AI
+    .then((data) => {
+      console.log(JSON.stringify(data)) // Log AI response
+      if (data.intents) {
+        if (data.intents[0].name == 'Banned' && data.intents[0].confidence > 0.9) { // If message intent = Banned
+          if (data.traits) {
+            console.log(data.traits);
+            if (data.traits.Insult) {
+              logger.info(`Detected: "Insult" in message, Purging Messages From ${tags.username}`);
+              client.timeout(channel, tags.username, 1, AutomatedActionReason);
+            } else if (data.traits.Racism) {
+              logger.info(`Detected: "Racism" in message, Purging Messages From ${tags.username}`);
+              client.timeout(channel, tags.username, 1, AutomatedActionReason);
+            } else if (data.traits.Threat) {
+              logger.info(`Detected: "Threat" in message, Purging Messages From ${tags.username}`);
+              client.timeout(channel, tags.username, 1, AutomatedActionReason);
+            } else if (data.traits.Toxicity) {
+              logger.info(`Detected" "Toxicity" in message, Purging Messages From ${tags.username}`);
+              client.timeout(channel, tags.username, 1, AutomatedActionReason);
+            }
+          }
+        }
+      }
+    })
+    .catch(console.error)
+  });
+
+  // NOTE: anything past this point will not be able to reference anything inside of the delayed script
 }, 2000); // End of setTimeout function
-
-
 
