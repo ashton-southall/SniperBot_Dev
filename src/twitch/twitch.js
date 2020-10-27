@@ -11,7 +11,6 @@ var globalConfig;
 // Query DB for user info
 const fauna = new faunadb.Client({ secret: config.masterConfig.faunadb_token }); // Create FaunaDB client
 const channels = fauna.paginate(q.Match(q.Index("twitchChannels"), "true")); // Query FaunaDB database for channel list
-fauna.query(q.Get(q.Ref(q.Collection('options'), '280347959557620236'))).then((ret) => globalConfig = ret)
 channels.each(function (page) { channelList = page }); // Page FaunaDB results => set channelList variable to those results
 
 
@@ -20,9 +19,6 @@ setTimeout(function () { // Main script | Delayed to cater for Database Response
 
   if (!channelList) {
     throw new Error(`Failed to load database info: "channelList" on time`);
-  }
-  if (!globalConfig) {
-    throw new Error(`Failed to load database info: "options" on time`);
   }
 
   // TMI.js Options (links back to cinfig.json for most options)
