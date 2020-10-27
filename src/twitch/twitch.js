@@ -7,13 +7,13 @@ const faunadb = require('faunadb'); // FaunaDB (Data Storage)
 const q = faunadb.query;
 
 var channelList; // Declare channelList variable
-var globalConfig;
+
 // Query DB for user info
-const fauna = new faunadb.Client({ secret: config.masterConfig.faunadb_token }); // Create FaunaDB client
+const fauna = new faunadb.Client({ secret: config.masterConfig.faunaDbToken }); // Create FaunaDB client
 const channels = fauna.paginate(q.Match(q.Index("twitchChannels"), "true")); // Query FaunaDB database for channel list
 channels.each(function (page) { channelList = page }); // Page FaunaDB results => set channelList variable to those results
 
-
+console.log(`Waiting 3 seconds to cater for DB response time, please wait`)
 
 setTimeout(function () { // Main script | Delayed to cater for Database Response time
 
@@ -38,10 +38,10 @@ setTimeout(function () { // Main script | Delayed to cater for Database Response
   };
 
   const TMI = new tmi.Client(options) // Create New TMI Client
-  const AI = new Wit({accessToken: config.masterConfig.wit_token}); // Create AI client
+  const AI = new Wit({accessToken: config.masterConfig.witToken}); // Create AI client
 
   // Log to confirm data loaded
-  console.log(`Global Configuration Loaded: ${globalConfig}`) // Display all admin usernames
+  console.log(`Global Configuration Loaded:`) // Display all admin usernames
   console.log(`Channels loaded: ${channelList}`) // Display all channel names
   console.log(`Blacklist loaded: `) // Display all blacklisted usernames
 
@@ -66,8 +66,15 @@ setTimeout(function () { // Main script | Delayed to cater for Database Response
   TMI.connect(); // Connect to twitch servers and join all channels
 
   TMI.on('message', (channel, tags, message, self) => {
+
     if (self) return; // Ignore messages sent by SniperBot
+
     console.log(`${channel} | ${tags.username} | ${message} || Self: ${self}`) // Log message Contents
+
+    if (message.toLowerCase().startsWith(`${config.masterConfig.prefix}sniperbot`)) {
+      TMI.say(channel, `SniperBot is an Advanced Moderation Bot for Twitch and Discord that utilizes Artificial Intelligence to make Moderation Decisions. Add SniperBot to your Twitch Chanel or Discord Server today and experience next level moderation http://sniperbot.tk`);
+    }
+
     AI.message(message) // Send Message Contents to AI
     .then((data) => {
       console.log(JSON.stringify(data)) // Log AI response
@@ -77,16 +84,16 @@ setTimeout(function () { // Main script | Delayed to cater for Database Response
             console.log(data.traits);
             if (data.traits.Insult) {
               logger.info(`Detected: "Insult" in message, Purging Messages From ${tags.username}`);
-              client.timeout(channel, tags.username, 1, AutomatedActionReason);
+              client.timeout(channel, tags.username, 1, config.masterConfig.automatedActionReason);
             } else if (data.traits.Racism) {
               logger.info(`Detected: "Racism" in message, Purging Messages From ${tags.username}`);
-              client.timeout(channel, tags.username, 1, AutomatedActionReason);
+              client.timeout(channel, tags.username, 1, config.masterConfig.automatedActionReason);
             } else if (data.traits.Threat) {
               logger.info(`Detected: "Threat" in message, Purging Messages From ${tags.username}`);
-              client.timeout(channel, tags.username, 1, AutomatedActionReason);
+              client.timeout(channel, tags.username, 1, config.masterConfig.automatedActionReason);
             } else if (data.traits.Toxicity) {
               logger.info(`Detected" "Toxicity" in message, Purging Messages From ${tags.username}`);
-              client.timeout(channel, tags.username, 1, AutomatedActionReason);
+              client.timeout(channel, tags.username, 1, config.masterConfig.automatedActionReason);
             }
           }
         }
@@ -96,5 +103,5 @@ setTimeout(function () { // Main script | Delayed to cater for Database Response
   });
 
   // NOTE: anything past this point will not be able to reference anything inside of the delayed script
-}, 2000); // End of setTimeout function
+}, 3000) // End of setTimeout function
 
