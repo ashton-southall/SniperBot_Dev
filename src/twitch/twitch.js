@@ -41,6 +41,7 @@ setTimeout(function () { // Main script | Delayed to cater for Database Response
 
   const TMI = new tmi.Client(options) // Create New TMI Client
   const AI = new Wit({accessToken: config.masterConfig.witToken}); // Create AI client
+  console.log(log);
 
   // Log to confirm data loaded
   console.log(`Global Configuration Loaded:`) // Display all admin usernames
@@ -75,13 +76,15 @@ setTimeout(function () { // Main script | Delayed to cater for Database Response
 
     if (message.toLowerCase().startsWith(`${config.masterConfig.prefix}sniperbot`)) {
       var action = message.split(' ')[1];
-      var input1 = message.split(' ')[2];
+
       if (action == 'join') {
         var inChannel;
-        console.log(`Querying database with index of users and data of: ${tags.username}`)
+
         const username = fauna.paginate(q.Match(q.Index("users"), tags.username)); // Query FaunaDB database for username => returns true or false
         username.each(function (page) { inChannel = page }); // Page FaunaDB results => set inChannel variable to those results
+
         waitForinChannelResult();
+        
         function waitForinChannelResult() {
           if (typeof inChannel !== "undefined") {
             if (inChannel[0] == true) {
@@ -90,14 +93,13 @@ setTimeout(function () { // Main script | Delayed to cater for Database Response
               fauna.query(q.Create(q.Collection("twitch_users"),{data: {"username": tags.username, "inChannel": true, "channelName": `#${tags.username}`, "isAdmin": false, "isBlacklisted": false}}))
             }
           } else {
-            console.log(`inChannel does not yet exist, waiting`);
             setTimeout(waitForinChannelResult, 250);
           }
         }
+      } else {
+        TMI.say(channel, `SniperBot is an Advanced Moderation Bot for Twitch and Discord that utilizes Artificial Intelligence to make Moderation Decisions. Add SniperBot to your Twitch Chanel or Discord Server today and experience next level moderation http://sniperbot.tk`);
       }
-    } else {
-      //TMI.say(channel, `SniperBot is an Advanced Moderation Bot for Twitch and Discord that utilizes Artificial Intelligence to make Moderation Decisions. Add SniperBot to your Twitch Chanel or Discord Server today and experience next level moderation http://sniperbot.tk`);
-    }
+    } 
 
     AI.message(message) // Send Message Contents to AI
     .then((data) => {
