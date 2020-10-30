@@ -1,7 +1,7 @@
 // Imports
 const tmi = require("tmi.js"); // TMI (Twitch bot library)
 const config = require('../config.json'); // Config File (Contains Secrets)
-const Wit = require('node-wit'); // WIT.AI (AI System for reading messages)
+const { Wit, log } = require('node-wit'); // WIT.AI (AI System for reading messages)
 const log4js = require('log4js'); // Log4JS (Creates logs for bot actions)
 const faunadb = require('faunadb'); // FaunaDB (Data Storage)
 const q = faunadb.query;
@@ -10,14 +10,16 @@ var channelList; // Declare channelList variable
 
 // Query DB for user info
 const fauna = new faunadb.Client({ secret: config.masterConfig.faunaDbToken }); // Create FaunaDB client
-const channels = fauna.paginate(q.Match(q.Index("twitchChannels"), "true")); // Query FaunaDB database for channel list
+const channels = fauna.paginate(q.Match(q.Index("twitchChannels"), true)); // Query FaunaDB database for channel list
 channels.each(function (page) { channelList = page }); // Page FaunaDB results => set channelList variable to those results
+
+
 
 console.log(`Waiting 3 seconds to cater for DB response time, please wait`)
 
 setTimeout(function () { // Main script | Delayed to cater for Database Response time
 
-  if (!channelList) {
+  if (!channelList) { // If ChannelList was not loaded on time throw an error and stop the script
     throw new Error(`Failed to load database info: "channelList" on time`);
   }
 
@@ -72,7 +74,29 @@ setTimeout(function () { // Main script | Delayed to cater for Database Response
     console.log(`${channel} | ${tags.username} | ${message} || Self: ${self}`) // Log message Contents
 
     if (message.toLowerCase().startsWith(`${config.masterConfig.prefix}sniperbot`)) {
-      TMI.say(channel, `SniperBot is an Advanced Moderation Bot for Twitch and Discord that utilizes Artificial Intelligence to make Moderation Decisions. Add SniperBot to your Twitch Chanel or Discord Server today and experience next level moderation http://sniperbot.tk`);
+      var action = message.split(' ')[1];
+      var input1 = message.split(' ')[2];
+      if (action == 'join') {
+        var inChannel;
+        console.log(`Querying database with index of users and data of: ${tags.username}`)
+        const username = fauna.paginate(q.Match(q.Index("users"), tags.username)); // Query FaunaDB database for username => returns true or false
+        username.each(function (page) { inChannel = page }); // Page FaunaDB results => set inChannel variable to those results
+        waitForinChannelResult();
+        function waitForinChannelResult() {
+          if (typeof inChannel !== "undefined") {
+            if (inChannel[0] == true) {
+              TMI.say(channel, `${tags.username} SniperBot is already in the channel`)
+            } else {
+              fauna.query(q.Create(q.Collection("twitch_users"),{data: {"username": tags.username, "inChannel": true, "channelName": `#${tags.username}`, "isAdmin": false, "isBlacklisted": false}}))
+            }
+          } else {
+            console.log(`inChannel does not yet exist, waiting`);
+            setTimeout(waitForinChannelResult, 250);
+          }
+        }
+      }
+    } else {
+      //TMI.say(channel, `SniperBot is an Advanced Moderation Bot for Twitch and Discord that utilizes Artificial Intelligence to make Moderation Decisions. Add SniperBot to your Twitch Chanel or Discord Server today and experience next level moderation http://sniperbot.tk`);
     }
 
     AI.message(message) // Send Message Contents to AI
