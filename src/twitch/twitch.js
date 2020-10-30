@@ -1,7 +1,7 @@
 // Imports
 const tmi = require("tmi.js"); // TMI (Twitch bot library)
 const config = require('../config.json'); // Config File (Contains Secrets)
-const { Wit,  log } = require('node-wit'); // WIT.AI (AI System for reading messages)
+const Wit = require('node-wit'); // WIT.AI (AI System for reading messages)
 const log4js = require('log4js'); // Log4JS (Creates logs for bot actions)
 const faunadb = require('faunadb'); // FaunaDB (Data Storage)
 const q = faunadb.query;
