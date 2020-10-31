@@ -85,7 +85,7 @@ function waitForDB() {
   
           waitForinChannelResult();
   
-          function waitForinChannelResult() {
+          async function waitForinChannelResult() {
             if (typeof inChannel !== "undefined") {
               if (inChannel[0] == true) {
                 TMI.say(channel, `${tags.username} SniperBot is already in the channel`)
