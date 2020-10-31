@@ -78,22 +78,28 @@ function waitForDB() {
         var action = message.split(' ')[1];
   
         if (action == 'join') {
+
+          // Joins A Channel
+          // Query Database for username, if it doesnt exist add user to database
+          // then connect TMI client to user's channel
+          // ############################################################################################
+          // **IMPORTANT**
+          // Add ability to change inChannel value for users who already have a document in the database
+          // ############################################################################################
+
           var inChannel;
-  
           const username = fauna.paginate(q.Match(q.Index("users"), tags.username)); // Query FaunaDB database for username => returns true or false
           username.each(function (page) { inChannel = page }); // Page FaunaDB results => set inChannel variable to those results
-  
           waitForinChannelResult();
-  
-          async function waitForinChannelResult() {
+          async function waitForinChannelResult() { // Asynchronous function => Repeat check for inChannel until a value exists
             if (typeof inChannel !== "undefined") {
-              if (inChannel[0] == true) {
+              if (inChannel[0] == true) { // If true notify user bot is already in that channel
                 TMI.say(channel, `${tags.username} SniperBot is already in the channel`)
-              } else {
+              } else { // If false create database entry for user containing default values
                 fauna.query(q.Create(q.Collection("twitch_users"),{data: {"username": tags.username, "inChannel": true, "channelName": `#${tags.username}`, "isAdmin": false, "isBlacklisted": false}}))
               }
             } else {
-              setTimeout(waitForinChannelResult, 250);
+              setTimeout(waitForinChannelResult, 250); // Wait 250ms before re-running check
             }
           }
         } else {
