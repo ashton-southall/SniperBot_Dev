@@ -125,9 +125,9 @@ function waitForDB() {
 
           // Asynchronous function => Repeat check for inChannel until a value exists
           // Wait 250ms between each check
+          // If inChannel == true notify user bot is already in that channel
+          // If false create database entry for user containing default values
           async function waitForinChannelResult() { 
-            // If inChannel == true notify user bot is already in that channel
-            // If false create database entry for user containing default values
             if (typeof inChannel !== "undefined") {
               if (inChannel[0] == true) { 
                 TMI.say(channel, `${tags.username} SniperBot is already in the channel`)
