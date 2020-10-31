@@ -1,29 +1,46 @@
+// Master bot script fot twitch module
+// #################################################
+// Confidential, DO NOT SHARE THIS CODE
+//
+// #### TO DO ####
+//
+// Add !leave command
+// **Critical** Add ability to change inChannel value when joining channels for users who already have a document in the database
+
 // Imports
-const tmi = require("tmi.js"); // TMI (Twitch bot library)
-const config = require('../config.json'); // Config File (Contains Secrets)
-const { Wit, log } = require('node-wit'); // WIT.AI (AI System for reading messages)
-const log4js = require('log4js'); // Log4JS (Creates logs for bot actions)
-const faunadb = require('faunadb'); // FaunaDB (Data Storage)
+// ###########################
+// TMI (Twitch bot library)
+// Config File (Contains Secrets)
+// WIT.AI (AI System for reading messages)
+// Log4JS (Creates logs for bot actions)
+// FaunaDB (Data Storage)
+const tmi = require("tmi.js"); 
+const config = require('../config.json'); 
+const { Wit, log } = require('node-wit'); 
+const log4js = require('log4js'); 
+const faunadb = require('faunadb'); 
 const q = faunadb.query;
 
-var channelList; // Declare channelList variable
-
 // Query DB for user info
-const fauna = new faunadb.Client({ secret: config.masterConfig.faunaDbToken }); // Create FaunaDB client
-const channels = fauna.paginate(q.Match(q.Index("twitchChannels"), true)); // Query FaunaDB database for channel list
-channels.each(function (page) { channelList = page }); // Page FaunaDB results => set channelList variable to those results
+// Declare channelList variable for storing list of channels to join
+// Create FaunaDB client
+// Query FaunaDB database for channel list
+// Page FaunaDB results => set channelList variable to those results
+var channelList; 
+const fauna = new faunadb.Client({ secret: config.masterConfig.faunaDbToken });
+const channels = fauna.paginate(q.Match(q.Index("twitchChannels"), true));
+channels.each(function (page) { channelList = page });
 
-waitForDB();
-
+// Main script | waitFor database results before running
 function waitForDB() {
-  if (typeof channelList !== "undefined") { // Main script | waitFor database results before running
+  if (typeof channelList !== "undefined") { 
 
-
-    if (!channelList) { // If ChannelList was not loaded on time throw an error and stop the script
+// If ChannelList was not loaded on time throw an error and stop the script
+    if (!channelList) { 
       throw new Error(`Failed to load database info: "channelList" on time`);
     }
   
-    // TMI.js Options (links back to cinfig.json for most options)
+    // TMI options (links back to cinfig.json for most options)
     let options = {
       options: {
         debug: config.twitchConfig.options.debug
@@ -36,17 +53,23 @@ function waitForDB() {
         username: config.twitchConfig.connection.username,
         password: config.twitchConfig.connection.password
       },
-      channels: channelList // FaunaDB query results
+      channels: channelList
     };
   
-    const TMI = new tmi.Client(options) // Create New TMI Client
-    const AI = new Wit({accessToken: config.masterConfig.witToken}); // Create AI client
+    // Create New TMI Client
+    // Create AI client
+    // Log AI info
+    const TMI = new tmi.Client(options) 
+    const AI = new Wit({accessToken: config.masterConfig.witToken}); 
     console.log(log);
   
     // Log to confirm data loaded
-    console.log(`Global Configuration Loaded:`) // Display all admin usernames
-    console.log(`Channels loaded: ${channelList}`) // Display all channel names
-    console.log(`Blacklist loaded: `) // Display all blacklisted usernames
+    // Display all admin usernames
+    // Display all channel names
+    // Display all blacklisted usernames
+    console.log(`Global Configuration Loaded:`) 
+    console.log(`Channels loaded: ${channelList}`) 
+    console.log(`Blacklist loaded: `) 
   
     // Log4JS Options
     log4js.configure({
@@ -66,14 +89,20 @@ function waitForDB() {
     var logger = log4js.getLogger('twitch');
     logger.level = 'info';
   
-    TMI.connect(); // Connect to twitch servers and join all channels
+    // Connect to twitch servers and join all channels
+    TMI.connect(); 
   
+    // TMI.on message
+    // Runs for every message
     TMI.on('message', (channel, tags, message, self) => {
   
-      if (self) return; // Ignore messages sent by SniperBot
+      // Ignore messages sent by SniperBot
+      if (self) return; 
   
-      console.log(`${channel} | ${tags.username} | ${message} || Self: ${self}`) // Log message Contents
+      // Log message Contents
+      console.log(`${channel} | ${tags.username} | ${message} || Self: ${self}`) 
   
+      // If Message startswith !sniperbot
       if (message.toLowerCase().startsWith(`${config.masterConfig.prefix}sniperbot`)) {
         var action = message.split(' ')[1];
   
@@ -89,18 +118,24 @@ function waitForDB() {
 
           var inChannel;
 
-          const username = fauna.paginate(q.Match(q.Index("users"), tags.username)); // Query FaunaDB database for username => returns true or false
-          username.each(function (page) { inChannel = page }); // Page FaunaDB results => set inChannel variable to those results
+          // Query FaunaDB database for username => returns true or false
+          // Page FaunaDB results => set inChannel variable to those results
+          const username = fauna.paginate(q.Match(q.Index("users"), tags.username)); 
+          username.each(function (page) { inChannel = page }); 
 
-          async function waitForinChannelResult() { // Asynchronous function => Repeat check for inChannel until a value exists
+          // Asynchronous function => Repeat check for inChannel until a value exists
+          // Wait 250ms between each check
+          async function waitForinChannelResult() { 
+            // If inChannel == true notify user bot is already in that channel
+            // If false create database entry for user containing default values
             if (typeof inChannel !== "undefined") {
-              if (inChannel[0] == true) { // If true notify user bot is already in that channel
+              if (inChannel[0] == true) { 
                 TMI.say(channel, `${tags.username} SniperBot is already in the channel`)
-              } else { // If false create database entry for user containing default values
+              } else { 
                 fauna.query(q.Create(q.Collection("twitch_users"),{data: {"username": tags.username, "inChannel": true, "channelName": `#${tags.username}`, "isAdmin": false, "isBlacklisted": false}}))
               }
             } else {
-              setTimeout(waitForinChannelResult, 250); // Wait 250ms before re-running check
+              setTimeout(waitForinChannelResult, 250);
             }
           }
 
@@ -118,11 +153,15 @@ function waitForDB() {
         }
       } 
   
-      AI.message(message) // Send Message Contents to AI
+      // Send Message Contents to AI
+      // Log AI response
+      // Get message intent from response (data)
+      // If response matches banned term, timeout sender for 1 second
+      AI.message(message) 
       .then((data) => {
-        console.log(JSON.stringify(data)) // Log AI response
+        console.log(JSON.stringify(data)) 
         if (data.intents[0]) {
-          if (data.intents[0].name == 'Banned' && data.intents[0].confidence > 0.9) { // If message intent = Banned
+          if (data.intents[0].name == 'Banned' && data.intents[0].confidence > 0.9) {
             if (data.traits) {
               console.log(data.traits);
               if (data.traits.Insult) {
@@ -150,3 +189,6 @@ function waitForDB() {
     setTimeout(waitForDB, 100);
   }
 }
+
+// Run main (delayed) script
+waitForDB();
