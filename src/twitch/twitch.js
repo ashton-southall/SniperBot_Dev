@@ -81,16 +81,17 @@ function waitForDB() {
 
           // Joins A Channel
           // Query Database for username, if it doesnt exist add user to database
-          // then connect TMI client to user's channel
+          // then connect TMI client to user's channel #### TO DO ####
           // ############################################################################################
           // **IMPORTANT**
           // Add ability to change inChannel value for users who already have a document in the database
           // ############################################################################################
 
           var inChannel;
+
           const username = fauna.paginate(q.Match(q.Index("users"), tags.username)); // Query FaunaDB database for username => returns true or false
           username.each(function (page) { inChannel = page }); // Page FaunaDB results => set inChannel variable to those results
-          waitForinChannelResult();
+
           async function waitForinChannelResult() { // Asynchronous function => Repeat check for inChannel until a value exists
             if (typeof inChannel !== "undefined") {
               if (inChannel[0] == true) { // If true notify user bot is already in that channel
@@ -102,7 +103,17 @@ function waitForDB() {
               setTimeout(waitForinChannelResult, 250); // Wait 250ms before re-running check
             }
           }
+
+          waitForinChannelResult();
+
+        } else if (action == 'leave') {
+          
+          // Leaves a channel
+          // Query database with username to find appropriate document
+          // Edit document inChannel value (Change to false)
+
         } else {
+
           TMI.say(channel, `SniperBot is an Advanced Moderation Bot for Twitch and Discord that utilizes Artificial Intelligence to make Moderation Decisions. Add SniperBot to your Twitch Chanel or Discord Server today and experience next level moderation http://sniperbot.tk`);
         }
       } 
