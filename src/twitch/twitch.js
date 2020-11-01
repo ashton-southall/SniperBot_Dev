@@ -117,21 +117,31 @@ function waitForDB() {
           // ############################################################################################
 
           var inChannel;
+          var userInfo
 
           // Query FaunaDB database for username => returns true or false
           // Page FaunaDB results => set inChannel variable to those results
-          const username = fauna.paginate(q.Match(q.Index("users"), tags.username)); 
-          username.each(function (page) { inChannel = page }); 
+          var queryinChannel = fauna.paginate(q.Match(q.Index("users.inChannel"), tags.username));
+          var queryuserInfo = fauna.paginate(q.Match(q.Index("users.allInfo"), tags.username));
+          queryinChannel.each(function (page) { inChannel = page }); 
+          queryuserInfo.each(function (page) { userInfo = page });
 
           // Asynchronous function => Repeat check for inChannel until a value exists
           // Wait 250ms between each check
           // If inChannel == true notify user bot is already in that channel
-          // If false create database entry for user containing default values
+          // If false create update DB entry to enable channel joining
+          // if DB does not contain any information about user create DB entry for user
           async function waitForinChannelResult() { 
             if (typeof inChannel !== "undefined") {
               if (inChannel[0] == true) { 
                 TMI.say(channel, `${tags.username} SniperBot is already in the channel`)
-              } else { 
+              } else if (inChannel[0] == false) { 
+                if (typeof userInfo !== "undefined") {
+                fauna.query(q.Update(q.Ref(q.Collection('twitch_users'), userInfo[0].id), { data: {inChannel: true } },))
+              } else {
+                setTimeout(waitForinChannelResult, 250)
+                }
+              } else {
                 fauna.query(q.Create(q.Collection("twitch_users"),{data: {"username": tags.username, "inChannel": true, "channelName": `#${tags.username}`, "isAdmin": false, "isBlacklisted": false}}))
               }
             } else {
