@@ -111,13 +111,8 @@ function waitForDB() {
           // Joins A Channel
           // Query Database for username, if it doesnt exist add user to database
           // then connect TMI client to user's channel #### TO DO ####
-          // ############################################################################################
-          // **IMPORTANT**
-          // Add ability to change inChannel value for users who already have a document in the database
-          // ############################################################################################
-
           var inChannel;
-          var userInfo
+          var userInfo;
 
           // Query FaunaDB database for username => returns true or false
           // Page FaunaDB results => set inChannel variable to those results
@@ -138,11 +133,24 @@ function waitForDB() {
               } else if (inChannel[0] == false) { 
                 if (typeof userInfo !== "undefined") {
                 fauna.query(q.Update(q.Ref(q.Collection('twitch_users'), userInfo[0].id), { data: {inChannel: true } },))
+                TMI.join(tags.username)
+                .then((data) => {
+                  TMI.say(channel, `Successfully joined channel ${tags.username}`)
+                }).catch((err) => {
+                  TMI.say(channel, `${tags.username} there was an error joining your channel, please try again later or submit a bug report at http://adfoc.us/54699276390696 Error: ${err}`)
+                });
+                
               } else {
                 setTimeout(waitForinChannelResult, 250)
                 }
               } else {
                 fauna.query(q.Create(q.Collection("twitch_users"),{data: {"username": tags.username, "inChannel": true, "channelName": `#${tags.username}`, "isAdmin": false, "isBlacklisted": false}}))
+                TMI.join(tags.username)
+                .then((data) => {
+                  TMI.say(channel, `Successfully joined channel ${tags.username}`)
+                }).catch((err) => {
+                  TMI.say(channel, `${tags.username} there was an error joining your channel, please try again later or submit a bug report at http://adfoc.us/54699276390696 Error: ${err}`)
+                });
               }
             } else {
               setTimeout(waitForinChannelResult, 250);
@@ -156,6 +164,48 @@ function waitForDB() {
           // Leaves a channel
           // Query database with username to find appropriate document
           // Edit document inChannel value (Change to false)
+          var inChannel;
+          var userInfo;
+
+          // Query FaunaDB database for username => returns true or false
+          // Page FaunaDB results => set inChannel variable to those results
+          var queryinChannel = fauna.paginate(q.Match(q.Index("users.inChannel"), tags.username));
+          var queryuserInfo = fauna.paginate(q.Match(q.Index("users.allInfo"), tags.username));
+          queryinChannel.each(function (page) { inChannel = page }); 
+          queryuserInfo.each(function (page) { userInfo = page });
+
+          // Asynchronous function => Repeat check for inChannel until a value exists
+          // Wait 250ms between each check
+          // If inChannel == true notify user bot is already in that channel
+          // If false create update DB entry to enable channel joining
+          // if DB does not contain any information about user create DB entry for user
+          async function waitForinChannelResult() { 
+            if (typeof inChannel !== "undefined") {
+              if (inChannel[0] == true) { 
+                if (typeof userInfo !== "undefined") {
+                  fauna.query(q.Update(q.Ref(q.Collection('twitch_users'), userInfo[0].id), { data: {inChannel: false } },))
+                  TMI.part(tags.username)
+                  .then((data) => {
+                    TMI.say(channel, `Successfully left channel ${tags.username}`)
+                  }).catch((err) => {
+                    TMI.say(channel, `${tags.username} there was an error leaving your channel, please try again later or submit a bug report at http://adfoc.us/54699276390696 Error: ${err}`)
+                  });
+                  
+                } else {
+                  setTimeout(waitForinChannelResult, 250)
+                  }
+              } else if (inChannel[0] == false) { 
+                TMI.say(channel, `${tags.username} SniperBot is not in that channel`)
+                
+              } else {
+                TMI.say(channel, `${tags.username} Database query returned null, please ensure sniperbot is in your channel before trying to remove it`)
+              }
+            } else {
+              setTimeout(waitForinChannelResult, 250);
+            }
+          }
+
+          waitForinChannelResult();
 
         } else {
 
