@@ -108,8 +108,33 @@ function runMaster() {
       // Ignore messages sent by SniperBot
       if (self) return;
 
+      var sender;
+      var querySender = fauna.paginate(q.Match(q.Index("users.allInfo"), tags.username))
+      querySender.each(function (page) {
+        sender = page
+      })
+      
+
       // Log message Contents
       console.log(`${channel} | ${tags.username} | ${message} || Self: ${self}`)
+
+      // Check if user is blacklisted
+      // Check if userInfo query "isBlacklisted" equals true or false
+      // if false, continue
+      // if true, timeout sender for 24 hours
+
+      // Asynchronous function, check if query is finished, if not repeat check until query is finished
+      async function waitForisBlacklistedResult() {
+        if (typeof sender !== "undefined") {
+          console.log(sender[0][3])
+          if (isBlacklisted[0][3] == true) {
+            TMI.timeout(channel, tags.username, config.twitchConfig.blacklist_ban_time, config.twitchConfig.blacklist_ban_reason);
+          }
+        } else {
+          setTimeout(waitForisBlacklistedResult, 250);
+        }
+      }
+      waitForisBlacklistedResult().catch(err => console.log(err))
 
       // If Message startswith !sniperbot
       if (message.toLowerCase().startsWith(`${config.masterConfig.prefix}sniperbot`)) {
