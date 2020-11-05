@@ -72,14 +72,6 @@ function runMaster() {
     });
     console.log(log);
 
-    // Log to confirm data loaded
-    // Display all admin usernames
-    // Display all channel names
-    // Display all blacklisted usernames
-    console.log(`Global Configuration Loaded:`)
-    console.log(`Channels loaded: ${channelList}`)
-    console.log(`Blacklist loaded: `)
-
     // Log4JS Options
     log4js.configure({
       appenders: {
@@ -126,8 +118,8 @@ function runMaster() {
       // Asynchronous function, check if query is finished, if not repeat check until query is finished
       async function waitForisBlacklistedResult() {
         if (typeof sender !== "undefined") {
-          console.log(sender[0][3])
-          if (isBlacklisted[0][3] == true) {
+          console.log(sender)
+          if (sender[0][5] == true) {
             TMI.timeout(channel, tags.username, config.twitchConfig.blacklist_ban_time, config.twitchConfig.blacklist_ban_reason);
           }
         } else {
@@ -143,21 +135,6 @@ function runMaster() {
         if (action == 'join') {
 
           // Joins A Channel
-          // Query Database for username, if it doesnt exist add user to database
-          // then connect TMI client to user's channel #### TO DO ####
-          var inChannel;
-          var userInfo;
-
-          // Query FaunaDB database for username => returns true or false
-          // Page FaunaDB results => set inChannel variable to those results
-          var queryinChannel = fauna.paginate(q.Match(q.Index("users.inChannel"), tags.username));
-          var queryuserInfo = fauna.paginate(q.Match(q.Index("users.allInfo"), tags.username));
-          queryinChannel.each(function (page) {
-            inChannel = page
-          });
-          queryuserInfo.each(function (page) {
-            userInfo = page
-          });
 
           // Asynchronous function => Repeat check for inChannel until a value exists
           // Wait 250ms between each check
@@ -165,16 +142,16 @@ function runMaster() {
           // If false create update DB entry to enable channel joining
           // if DB does not contain any information about user create DB entry for user
           async function waitForinChannelResult() {
-            if (typeof inChannel !== "undefined") {
-              if (inChannel[0] == true) {
+            if (typeof sender !== "undefined") {
+              if (sender[0][2] == true) {
                 TMI.say(channel, `${tags.username} SniperBot is already in the channel`)
-              } else if (inChannel[0] == false) {
-                if (typeof userInfo !== "undefined") {
-                  fauna.query(q.Update(q.Ref(q.Collection('twitch_users'), userInfo[0].id), {
+              } else if (sender[0][2] == false) {
+                
+                  fauna.query(q.Update(q.Ref(q.Collection('twitch_users'), sender[0][0]), {
                     data: {
                       inChannel: true
                     }
-                  }, ))
+                  }, )).catch(error => console.log(error))
                   TMI.join(tags.username)
                     .then((data) => {
                       TMI.say(channel, `Successfully joined channel ${tags.username}`)
@@ -182,9 +159,7 @@ function runMaster() {
                       TMI.say(channel, `${tags.username} there was an error joining your channel, please try again later or submit a bug report at http://adfoc.us/54699276390696 Error: ${err}`)
                     });
 
-                } else {
-                  setTimeout(waitForinChannelResult, 250)
-                }
+
               } else {
                 fauna.query(q.Create(q.Collection("twitch_users"), {
                   data: {
@@ -207,26 +182,11 @@ function runMaster() {
             }
           }
 
-          waitForinChannelResult();
+          waitForinChannelResult().catch(error => console.log(error))
 
         } else if (action == 'leave') {
 
           // Leaves a channel
-          // Query database with username to find appropriate document
-          // Edit document inChannel value (Change to false)
-          var inChannel;
-          var userInfo;
-
-          // Query FaunaDB database for username => returns true or false
-          // Page FaunaDB results => set inChannel variable to those results
-          var queryinChannel = fauna.paginate(q.Match(q.Index("users.inChannel"), tags.username));
-          var queryuserInfo = fauna.paginate(q.Match(q.Index("users.allInfo"), tags.username));
-          queryinChannel.each(function (page) {
-            inChannel = page
-          });
-          queryuserInfo.each(function (page) {
-            userInfo = page
-          });
 
           // Asynchronous function => Repeat check for inChannel until a value exists
           // Wait 250ms between each check
@@ -234,10 +194,9 @@ function runMaster() {
           // If false create update DB entry to enable channel joining
           // if DB does not contain any information about user create DB entry for user
           async function waitForinChannelResult() {
-            if (typeof inChannel !== "undefined") {
-              if (inChannel[0] == true) {
-                if (typeof userInfo !== "undefined") {
-                  fauna.query(q.Update(q.Ref(q.Collection('twitch_users'), userInfo[0].id), {
+            if (typeof sender !== "undefined") {
+              if (sender[0][2] == true) {
+                  fauna.query(q.Update(q.Ref(q.Collection('twitch_users'), sender[0][0].id), {
                     data: {
                       inChannel: false
                     }
@@ -249,10 +208,7 @@ function runMaster() {
                       TMI.say(channel, `${tags.username} there was an error leaving your channel, please try again later or submit a bug report at http://adfoc.us/54699276390696 Error: ${err}`)
                     });
 
-                } else {
-                  setTimeout(waitForinChannelResult, 250)
-                }
-              } else if (inChannel[0] == false) {
+              } else if (sender[0][2] == false) {
                 TMI.say(channel, `${tags.username} SniperBot is not in that channel`)
 
               } else {
