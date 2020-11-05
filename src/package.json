@@ -1,6 +1,6 @@
 {
   "name": "sniperbot",
-  "version": "2.2.0.0",
+  "version": "2.2.0",
   "description": "Advanced Moderation Bot for Twitch and Discord that utilizes Artificial Intelligence to make Moderation Decisions",
   "dependencies": {
     "discord.js": "^12.2.0",
