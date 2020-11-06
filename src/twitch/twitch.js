@@ -33,7 +33,7 @@ var channelList;
 const fauna = new faunadb.Client({
   secret: config.masterConfig.faunaDbToken
 });
-const channels = fauna.paginate(q.Match(q.Index("twitchChannels"), true));
+const channels = fauna.paginate(q.Match(q.Index("twitch.channels"), true));
 channels.each(function (page) {
   channelList = page
 });
@@ -101,7 +101,7 @@ function runMaster() {
       if (self) return;
 
       var sender;
-      var querySender = fauna.paginate(q.Match(q.Index("users.allInfo"), tags.username))
+      var querySender = fauna.paginate(q.Match(q.Index("twitch.users.allInfo"), tags.username))
       querySender.each(function (page) {
         sender = page
       })
