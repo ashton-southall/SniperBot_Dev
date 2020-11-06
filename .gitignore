@@ -6,3 +6,4 @@ src/config.json
 package-lock.json
 .faunarc
 .vscode/
+doc/
