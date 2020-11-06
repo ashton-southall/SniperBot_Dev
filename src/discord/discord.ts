@@ -96,15 +96,12 @@ discord.on('message', message => {
             console.log(sender)
             if (sender.length !== 0) {
                 if (sender[0][3] == true) {
-                    message.member.kick().then((member) => {
-                        console.log(`Kicked ${member} from a server`)
+                    message.member.kick().then(() => {
                         message.channel.send(embeds.blacklistKick)
                         message.author.send(embeds.blacklistDM)
                     }).catch(error => message.channel.send(`Hmm, there was a problem timing out blacklisted user ${message.author.username}, Only bad very bad people are put on the blacklist so keep an eye on them, okay? error: ${error}`))
                 } else if (sender[0][3] == false) {
                     message.channel.send(`This message is to confirm to the developer that a feature is working. please ignore me`)
-                } else {
-                    
                 }
             } else {
                 fauna.query(q.Create(q.Collection("discord_users"), {data: {"id": message.author.id,"username": message.author.username,"isAdmin": false,"isBlacklisted": false}}))

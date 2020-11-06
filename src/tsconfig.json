@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "target": "ESNext",
+        "target": "es2017",
         "watch": true,
         "lib": ["dom", "es2020"],
         "removeComments": true,
