@@ -1,7 +1,7 @@
 //  Master bot script for Discord module
 // ############################################
 // Confidential, DO NOT SHARE THIS CODE
-//
+// ############################################
 // Imports
 // ##########################
 // discord.js (Discord bot library)
@@ -13,8 +13,8 @@
 const discordjs = require('discord.js')
 const faunadb = require('faunadb')
 const q = faunadb.query //@ts-ignore
-const config = require('../config.json')
-const embeds = require('./embeds.js')
+const config = require('../config.json')//@ts-ignore
+const embeds = require('./submodules/embeds.ts')
 const {
     Wit,
     log
@@ -50,9 +50,6 @@ const fauna = new faunadb.Client({
     secret: config.masterConfig.faunaDbToken
 })
 
-// When Ready
-// Run when discord bot is ready and waiting for login command
-// ##########################
 // Set bot status on interval
 discord.once('ready', () => {
     setInterval(() => {
@@ -65,51 +62,25 @@ discord.once('ready', () => {
 // Login to discord with bot token
 discord.login(config.discordConfig.token);
 
-// discord.on message
 // Runs for every message
 discord.on('message', message => {
     if (message.author.bot) return
 
     // DM Communication
     if (message.channel.type == "dm") {
-        const newMessageEmbed = new discordjs.MessageEmbed().setColor('#ff5757').setTitle(`New Message`).addField(`User ID: ${message.author.id}`, `${message}`, true).setTimestamp().setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png')
-        message.author.send(embeds.DMReply)
-        discord.channels.cache.get("707636583121158174").send(newMessageEmbed)
+        const sendDM = require('./submodules/sendDM.ts').catch(error => console.log(error))
+        sendDM.sendReply(discordjs, discord, message, embeds).catch(error => console.log(error))
     }
 
     // Query Database for userInfo
-    var sender;
-    const querySender = fauna.paginate(q.Match(q.Index("discord.users.allInfo"), message.author.id))
-    querySender.each(function (page) {
-        sender = page
-    })
+    const dbQuery = require('./submodules/dbQuery.ts')
+    var sender
+    dbQuery.querySenderInfo(fauna, q, message).catch(error => console.log(error)).then(sender => sender)
 
     // Log message to console
     console.log(`${message.author.id} | ${message}`)
 
     // Check is user is blacklisted
-    // Asynchronous function, check if user query has finished then check contents of isBlacklisted
-    // if true, kick user from server
-    // if false do nothing
-    async function waitForisBlacklistedResult() {
-        if (typeof sender !== "undefined") {
-            console.log(sender)
-            if (sender.length !== 0) {
-                if (sender[0][3] == true) {
-                    message.member.kick().then(() => {
-                        message.channel.send(embeds.blacklistKick)
-                        message.author.send(embeds.blacklistDM)
-                    }).catch(error => message.channel.send(`Hmm, there was a problem timing out blacklisted user ${message.author.username}, Only bad very bad people are put on the blacklist so keep an eye on them, okay? error: ${error}`))
-                } else if (sender[0][3] == false) {
-                    message.channel.send(`This message is to confirm to the developer that a feature is working. please ignore me`)
-                }
-            } else {
-                fauna.query(q.Create(q.Collection("discord_users"), {data: {"id": message.author.id,"username": message.author.username,"isAdmin": false,"isBlacklisted": false}}))
-            }
-        } else {
-            setTimeout(waitForisBlacklistedResult, 250)
-        }
-
-    }
-    waitForisBlacklistedResult().catch(error => console.log(error))
+    const blacklistManager = require('./submodules/blacklistManager.ts')
+    blacklistManager.checkisBlacklisted(sender, message).catch(error => console.log(error))
 })
