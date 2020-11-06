@@ -1,11 +1,11 @@
-const discordjs = require('discord.js');
-const faunadb = require('faunadb');
-const config = require('../config.json');
-const embeds = require('./embeds.js');
-const { Wit, log } = require('node-wit');
-const log4js = require('log4js');
+var discordjs = require('discord.js');
+var faunadb = require('faunadb');
+var config = require('../config.json');
+var embeds = require('./embeds.js');
+var _a = require('node-wit'), Wit = _a.Wit, log = _a.log;
+var log4js = require('log4js');
 // Create DiscordJS client
-const discord = new discordjs.Client();
+var discord = new discordjs.Client();
 // Configure Log4JS
 log4js.configure({
     appenders: {
@@ -15,7 +15,7 @@ log4js.configure({
         }
     },
     categories: {
-        default: {
+        "default": {
             appenders: ["discord"],
             level: "info"
         }
@@ -24,13 +24,13 @@ log4js.configure({
 var logger = log4js.getLogger('discord');
 logger.level = 'info';
 // Configure WIT AI
-const AI = new Wit({ accessToken: config.masterConfig.witToken });
+var AI = new Wit({ accessToken: config.masterConfig.witToken });
 // When Ready
 // Run when discord bot is ready and waiting for login command
 // ##########################
 // Set bot status on interval
-discord.once('ready', () => {
-    setInterval(() => {
+discord.once('ready', function () {
+    setInterval(function () {
         discord.user.setActivity(config.discordConfig.activity, {
             type: config.discordConfig.activity_type
         });
@@ -40,12 +40,12 @@ discord.once('ready', () => {
 discord.login(config.discordConfig.token);
 // discord.on message
 // Runs for every message
-discord.on('message', message => {
+discord.on('message', function (message) {
     if (message.author.bot)
         return;
     // DM Communication
     if (message.channel.type == "dm") {
-        const newMessageEmbed = new discordjs.MessageEmbed().setColor('#ff5757').setTitle(`New Message`).addField(`User ID: ${message.author.id}`, `${message}`, true).setTimestamp().setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+        var newMessageEmbed = new discordjs.MessageEmbed().setColor('#ff5757').setTitle("New Message").addField("User ID: " + message.author.id, "" + message, true).setTimestamp().setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
         message.author.send(embeds.DMReply);
         discord.channels.cache.get("707636583121158174").send(newMessageEmbed);
     }
