@@ -37,7 +37,7 @@ discord.once('ready', () => {
 });
 // Login to discord with bot token
 discord.login(config.discordConfig.token);
-// discord.on message 
-// Runs for every message 
+// discord.on message
+// Runs for every message
 discord.on('message', message => {
 });
