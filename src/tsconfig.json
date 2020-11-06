@@ -2,6 +2,10 @@
     "compilerOptions": {
         "target": "ESNext",
         "watch": true,
-        "lib": ["dom", "es2020"]
-    }
+        "lib": ["dom", "es2020"],
+        "removeComments": true,
+    },
+    "exclude": [
+        "node_modules"
+    ]
 }
