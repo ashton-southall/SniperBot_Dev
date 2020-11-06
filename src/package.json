@@ -15,8 +15,8 @@
   },
   "devDependencies": {},
   "scripts": {
-    "twitch": "node ./twitch/twitch.js",
-    "discord": "node ./discord/discord.js"
+    "twitch": "node ./twitch/twitch.ts",
+    "discord": "node ./discord/discord.ts"
   },
   "repository": {
     "type": "git",
