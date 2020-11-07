@@ -38,4 +38,25 @@ const blacklistDM = new discordjs.MessageEmbed()
     }, )
     .setTimestamp()
     .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
-module.exports = {DMReply, blacklistKick, blacklistDM};
+
+const kickMessage = new discordjs.MessageEmbed()
+    .setColor('#ff5757')
+    .setTitle(`User Kicked`)
+    .addField(`A member has been manually kicked from the server, Please review server Audit logs for more info`)
+    .setTimestamp()
+    .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+
+const kickedMessage = new discordjs.MessageEmbed()
+    .setColor('#ff5757')
+    .setTitle(`You've been kicked!`)
+    .addField(`You were kicked from a server`)
+    .addField(`Manually kicked by admin or moderator`)
+    .setTimestamp()
+    .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+
+module.exports = {
+    DMReply,
+    blacklistKick,
+    blacklistDM,
+    kickMessage
+};

@@ -15,6 +15,7 @@ const faunadb = require('faunadb')
 const q = faunadb.query //@ts-ignore
 const config = require('../config.json')//@ts-ignore
 const embeds = require('./submodules/embeds.ts')
+const sendDM = require('./submodules/sendDM.ts')
 const {
     Wit,
     log
@@ -72,7 +73,6 @@ discord.on('message', message => {
 
     // DM Communication
     if (message.channel.type == "dm") {
-        const sendDM = require('./submodules/sendDM.ts').catch(error => console.log(error))
         sendDM.sendReply(discordjs, discord, message, embeds).catch(error => console.log(error))
     }
 
@@ -108,4 +108,39 @@ discord.on('message', message => {
     
     }
     checkisBlacklisted().catch(error => console.log(error))
+
+    // !purge
+    // Bulk delete messages
+    if (message.content.startsWith(`${config.masterConfig.prefix}purge`)) {
+        if (message.member.hasPermission(['ADMINISTRATOR'])) {
+            var purgeCount = message.content.split(' ')[1]
+            message.channel.bulkDelete(purgeCount)
+                .then(messages => message.channel.send(`Purged ${messages.size} messages`))
+        } else if (sender[0][3] == true) {
+            var purgeCount = message.content.split(' ')[1]
+            message.channel.bulkDelete(purgeCount)
+                .then(messages => message.channel.send(`A SniperBot admin purged ${messages.size} messages`))
+        }
+    }
+
+    // !kick
+    if (message.content.startsWith(`${config.masterConfig.prefix}kick`)) {
+        if (message.member.hasPermission(['KICK_MEMBERS'])) {
+            let memberToKick = message.mentions.members.first();
+            if (memberToKick) {
+                memberToKick.kick().then((member) => {
+                    message.channel.send(embeds.kickMessage)
+                    sendDM.sendKicked(member)
+                })
+            }
+        } else if (sender[0][3] == true) {
+            let memberToKick = message.mentions.members.first();
+            if (memberToKick) {
+                memberToKick.kick().then((member) => {
+                    message.channel.send(embeds.kickMessage)
+                    sendDM.sendKicked()
+                })
+            }
+        }
+    }
 })
