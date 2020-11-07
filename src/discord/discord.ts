@@ -64,7 +64,11 @@ discord.login(config.discordConfig.token);
 
 // Runs for every message
 discord.on('message', message => {
+
     if (message.author.bot) return
+
+    // Log message to console
+    console.log(`${message.author.id} | ${message}`)
 
     // DM Communication
     if (message.channel.type == "dm") {
@@ -73,14 +77,35 @@ discord.on('message', message => {
     }
 
     // Query Database for userInfo
-    const dbQuery = require('./submodules/dbQuery.ts')
     var sender
-    dbQuery.querySenderInfo(fauna, q, message).catch(error => console.log(error)).then(sender => sender)
+    async function querySenderInfo() {
+        const querySender = fauna.paginate(q.Match(q.Index("discord.users.allInfo"), message.author.id))
+        querySender.each(function (page) {
+            sender = page
+        })
+    }
+    querySenderInfo().catch(error => console.log(error))
 
-    // Log message to console
-    console.log(`${message.author.id} | ${message}`)
-
-    // Check is user is blacklisted
-    const blacklistManager = require('./submodules/blacklistManager.ts')
-    blacklistManager.checkisBlacklisted(sender, message).catch(error => console.log(error))
+    async function checkisBlacklisted() {
+        console.log(`running blacklist check`)
+        if (typeof sender !== "undefined") {
+            console.log(`sender exists`)
+            console.log(sender)
+            if (sender.length !== 0) {
+                if (sender[0][3] == true) {
+                    message.member.kick().then(() => {
+                        message.channel.send(embeds.blacklistKick)
+                        message.author.send(embeds.blacklistDM)
+                    }).catch(error => message.channel.send(`Hmm, there was a problem timing out blacklisted user ${message.author.username}, Only bad very bad people are put on the blacklist so keep an eye on them, okay? error: ${error}`))
+                }
+            } else {
+                console.log(`Sender does not exist, creating entry`)
+                fauna.query(q.Create(q.Collection("discord_users"), {data: {"id": message.author.id,"username": message.author.username,"isAdmin": false,"isBlacklisted": false}}))
+            }
+        } else {
+            setTimeout(checkisBlacklisted, 250)
+        }
+    
+    }
+    checkisBlacklisted().catch(error => console.log(error))
 })
