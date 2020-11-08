@@ -39,7 +39,7 @@ client.on('message', (channel, tags, message, self) => {
   // AI Moderation
   // AI Moderation Settings
   ActionConfidence = '0.9';
-  AutomatedActionReason = `Message automatically purged by SniperBot. report inaccuracies at https://github.com/Adsnipers/TheSniperBot/issues`;
+  AutomatedActionReason = `Message automatically purged by SniperBot. report inaccuracies at http://adfoc.us/54699276390696`;
   // Send message to AI
   AI.message(message, {})
     .then((data) => {
@@ -49,7 +49,7 @@ client.on('message', (channel, tags, message, self) => {
         if (data.intents[0].name == 'bot_message' && data.intents[0].confidence > ActionConfidence) {
           console.log(data.intents.name);
           logger.info(`Detected bot_message from ${tags.username}, purging messages from user`);
-          client.timeout(channel, tags.username, 1, `Bot message prevented by SniperBot, report inaccuracies at https://bit.ly/SniperBotReport`);
+          client.timeout(channel, tags.username, 1, `Bot message prevented by SniperBot, report inaccuracies at http://adfoc.us/54699276390696`);
         }
         if (data.intents[0].name = 'banned' && data.intents[0].confidence > ActionConfidence) {
         if (data.traits) {
@@ -86,7 +86,7 @@ client.on('message', (channel, tags, message, self) => {
     client.timeout(channel, tags.username, config.blacklist_ban_time, config.blacklist_ban_reason)
       .then((data) => {
         logger.info(`Timing out Blacklisted user ${tags.username} for ${config.blacklist_ban_time}`)
-        client.say(channel, '@' + tags.username + ' you are blacklisted via SniperBot and are not permitted to talk in any channel using SniperBot, appeal at https://bit.ly/SniperBotBanAppeal [24 hour timeout]');
+        client.say(channel, '@' + tags.username + ' you are blacklisted via SniperBot and are not permitted to talk in any channel using SniperBot, appeal at http://adfoc.us/54699276390715 [24 hour timeout]');
         blacklistTimeouts.inc();
       }).catch((err) => {
         client.say(channel, 'there was a problem while initiating a timeout on blacklisted user ' + tags.username + ' Error: ' + err);

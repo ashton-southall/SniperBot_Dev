@@ -243,7 +243,7 @@ client.on('message', message => {
         value: '\u200B'
       }, {
         name: 'More Info',
-        value: 'for more information about SniperBot visit\rhttp://sniperbot.tk\rFor advanced support join the official SniperBot discord to chat with a developer:\rhttps://discord.io/sniperbot\rMore information is also availavle at https://github.com/Adsnipers/SniperBot"',
+        value: 'for more information about SniperBot visit\rhttp://sniperbot.tk\rFor advanced support join the official SniperBot discord to chat with a developer:\rhttps://discord.io/sniperbot\rMore information is also availavle at http://adfoc.us/5469921"',
         inline: true
       }, {
         name: '\u200B',
@@ -262,7 +262,7 @@ client.on('message', message => {
   // AI Moderation
   // AI Moderation Settings
   ActionConfidence = '0.9';
-  AutomatedActionReason = `Message automatically purged by SniperBot. report inaccuracies at https://bit.ly/SniperBotReport`;
+  AutomatedActionReason = `Message automatically purged by SniperBot. report inaccuracies at http://adfoc.us/54699276390696`;
   // Send message to AI
   if (message.channel.nsfw == !true) {
     AI.message(message, {})
@@ -275,7 +275,7 @@ client.on('message', message => {
         const AIOperationEmbed = new Discord.MessageEmbed()
           .setColor('#ff5757')
           .setTitle(`AI Operation`)
-          .setDescription(`A message has been deleted as it was detected for being highly innapropriate, report any innacuracies at http://bit.ly/SniperBotReport`)
+          .setDescription(`A message has been deleted as it was detected for being highly innapropriate, report any innacuracies at http://adfoc.us/54699276390696`)
           .setTimestamp()
           .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
 
