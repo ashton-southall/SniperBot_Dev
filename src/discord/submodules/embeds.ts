@@ -42,15 +42,14 @@ const blacklistDM = new discordjs.MessageEmbed()
 const kickMessage = new discordjs.MessageEmbed()
     .setColor('#ff5757')
     .setTitle(`User Kicked`)
-    .addField(`A member has been manually kicked from the server, Please review server Audit logs for more info`)
+    .addField(`A member has been manually kicked from the server, Check the server's audit logs for more information`)
     .setTimestamp()
     .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
 
-const kickedMessage = new discordjs.MessageEmbed()
+const banMessage = new discordjs.MessageEmbed()
     .setColor('#ff5757')
-    .setTitle(`You've been kicked!`)
-    .addField(`You were kicked from a server`)
-    .addField(`Manually kicked by admin or moderator`)
+    .setTitle(`Member banned`)
+    .addField(`A member has been banned from the server`, `Manually banned by Moderator / Administrator`, `Check the server's audit logs for more information`)
     .setTimestamp()
     .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
 
@@ -58,5 +57,6 @@ module.exports = {
     DMReply,
     blacklistKick,
     blacklistDM,
-    kickMessage
+    kickMessage,
+    banMessage
 };

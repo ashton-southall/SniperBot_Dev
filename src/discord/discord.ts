@@ -128,17 +128,36 @@ discord.on('message', message => {
         if (message.member.hasPermission(['KICK_MEMBERS'])) {
             let memberToKick = message.mentions.members.first();
             if (memberToKick) {
-                memberToKick.kick().then((member) => {
+                memberToKick.kick({reason: `Manually kicked by ${message.author.username}`}).then((member) => {
                     message.channel.send(embeds.kickMessage)
-                    sendDM.sendKicked(member)
+                    sendDM.sendKicked(discordjs, discord, message, embeds)
                 })
             }
         } else if (sender[0][3] == true) {
             let memberToKick = message.mentions.members.first();
             if (memberToKick) {
-                memberToKick.kick().then((member) => {
+                memberToKick.kick({reason: `Manually kicked by ${message.author.username}`}).then((member) => {
                     message.channel.send(embeds.kickMessage)
-                    sendDM.sendKicked()
+                    sendDM.sendKicked(discordjs, discord, message, embeds)
+                })
+            }
+        }
+    }
+
+    // !ban
+    if (message.content.startsWith(`${config.masterConfig.prefix}ban`)) {
+        if (message.member.hasPermission('BAN_MEMBERS')) {
+            let memberToBan = message.mentions.members.first();
+            if (memberToBan) {
+                memberToBan.ban({reason: `Manually banned by ${message.author.username}`}).then((member) => {
+                    sendDM.sendBanned(discordjs, discord, message, embeds);
+                })
+            }
+        } else if (sender[0][3] == true) {
+            let memberToBan = message.mentions.members.first();
+            if (memberToBan) {
+                memberToBan.ban({reason: `Manually banned by ${message.author.username}`}).then((member) => {
+                    sendDM.sendBanned(discordjs, discord, message, embeds);
                 })
             }
         }
