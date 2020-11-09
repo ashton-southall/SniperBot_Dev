@@ -18,7 +18,7 @@ const embeds = require('./submodules/embeds.ts');
 const sendDM = require('./submodules/sendDM.ts');
 const manualModeration = require('./submodules/manualModeration.ts');
 const blacklist = require('./submodules/blacklist.ts');
-const AIParse = require('./submodules/ai.ts');
+const AIActions = require('./submodules/ai.ts');
 const {
     Wit,
     log
@@ -101,6 +101,9 @@ discord.on('message', message => {
 
             // !ban
             manualModeration.ban(SBconfig, discordjs, discord, message, sender);
+
+            // AI
+            AIActions.sendMessageToWit(AI, message, embeds.messageDeleted)
         } else {
             setTimeout(waitForQuery, 250);
         }

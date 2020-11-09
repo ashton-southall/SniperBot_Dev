@@ -53,10 +53,18 @@ const banMessage = new discordjs.MessageEmbed()
     .setTimestamp()
     .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
 
+const messageDeleted = new discordjs.MessageEmbed()
+    .setColor('#ff5757')
+    .setTitle(`AI Operation`)
+    .setDescription(`A message has been deleted as it was detected for being highly innapropriate, report any innacuracies at http://adfoc.us/54699276390696`)
+    .setTimestamp()
+    .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+
 module.exports = {
     DMReply,
     blacklistKick,
     blacklistDM,
     kickMessage,
-    banMessage
+    banMessage,
+    messageDeleted
 };
