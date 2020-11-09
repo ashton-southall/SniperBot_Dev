@@ -16,7 +16,9 @@ const q = faunadb.query ;
 const SBconfig = require('../config.json');
 const embeds = require('./submodules/embeds.ts');
 const sendDM = require('./submodules/sendDM.ts');
-const manualModeration = require('./submodules/manualModeration');
+const manualModeration = require('./submodules/manualModeration.ts');
+const blacklist = require('./submodules/blacklist.ts');
+const AIParse = require('./submodules/ai.ts');
 const {
     Wit,
     log
@@ -87,35 +89,21 @@ discord.on('message', message => {
     }
     querySenderInfo().catch(error => console.log(error));
 
-    async function checkisBlacklisted() {
-        console.log(`running blacklist check`);
-        if (typeof sender !== "undefined") {
-            console.log(`sender exists`);
-            console.log(sender);
-            if (sender.length !== 0) {
-                if (sender[0][3] == true) {
-                    message.member.kick().then(() => {
-                        message.channel.send(embeds.blacklistKick);
-                        message.author.send(embeds.blacklistDM);
-                    }).catch(error => message.channel.send(`Hmm, there was a problem timing out blacklisted user ${message.author.username}, Only bad very bad people are put on the blacklist so keep an eye on them, okay? error: ${error}`));
-                }
-            } else {
-                console.log(`Sender does not exist, creating entry`);
-                fauna.query(q.Create(q.Collection("discord_users"), {data: {"id": message.author.id,"username": message.author.username,"isAdmin": false,"isBlacklisted": false}}));
-            }
+    async function waitForQuery() {
+        if (typeof sender !== 'undefined') {
+            blacklist.checkisBlacklisted(SBconfig, discordjs, discord, message, sender);
+
+            // !purge
+            manualModeration.purge(SBconfig, discordjs, discord, message, sender);
+
+            // !kick
+            manualModeration.kick(SBconfig, discordjs, discord, message, sender);
+
+            // !ban
+            manualModeration.ban(SBconfig, discordjs, discord, message, sender);
         } else {
-            setTimeout(checkisBlacklisted, 250)
+            setTimeout(waitForQuery, 250);
         }
-    
     }
-    checkisBlacklisted().catch(error => console.log(error))
-
-    // !purge
-    manualModeration.purge(SBconfig, discordjs, discord, message, sender);
-
-    // !kick
-    manualModeration.kick(SBconfig, discordjs, discord, message, sender);
-
-    // !ban
-    manualModeration.ban(SBconfig, discordjs, discord, message, sender);
+   waitForQuery().catch(error => console.log(error));
 })
