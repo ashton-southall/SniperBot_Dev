@@ -10,20 +10,21 @@
 // WIT.AI (AI system for interpreting messages)
 // Log4JS (Generates logs containing bot actions)
 //@ts-ignore
-const discordjs = require('discord.js')
-const faunadb = require('faunadb')
-const q = faunadb.query //@ts-ignore
-const config = require('../config.json')//@ts-ignore
-const embeds = require('./submodules/embeds.ts')
-const sendDM = require('./submodules/sendDM.ts')
+const discordjs = require('discord.js');
+const faunadb = require('faunadb');
+const q = faunadb.query ;
+const SBconfig = require('../config.json');
+const embeds = require('./submodules/embeds.ts');
+const sendDM = require('./submodules/sendDM.ts');
+const punish = require('./submodules/punish.ts');
 const {
     Wit,
     log
 } = require('node-wit')
-const log4js = require('log4js')
+const log4js = require('log4js');
 
 // Create DiscordJS client
-const discord = new discordjs.Client()
+const discord = new discordjs.Client();
 
 // Configure Log4JS
 log4js.configure({
@@ -40,28 +41,28 @@ log4js.configure({
         }
     }
 });
-var logger = log4js.getLogger('discord')
+var logger = log4js.getLogger('discord');
 logger.level = 'info'
 
 // Configure Dependencies
 const AI = new Wit({
-    accessToken: config.masterConfig.witToken
+    accessToken: SBconfig.masterConfig.witToken
 })
 const fauna = new faunadb.Client({
-    secret: config.masterConfig.faunaDbToken
+    secret: SBconfig.masterConfig.faunaDbToken
 })
 
 // Set bot status on interval
 discord.once('ready', () => {
     setInterval(() => {
-        discord.user.setActivity(config.discordConfig.activity, {
-            type: config.discordConfig.activity_type
+        discord.user.setActivity(SBconfig.discordConfig.activity, {
+            type: SBconfig.discordConfig.activity_type
         })
     }, 10000)
 });
 
 // Login to discord with bot token
-discord.login(config.discordConfig.token);
+discord.login(SBconfig.discordConfig.token);
 
 // Runs for every message
 discord.on('message', message => {
@@ -69,38 +70,38 @@ discord.on('message', message => {
     if (message.author.bot) return
 
     // Log message to console
-    console.log(`${message.author.id} | ${message}`)
+    console.log(`${message.author.id} | ${message}`);
 
     // DM Communication
     if (message.channel.type == "dm") {
-        sendDM.sendReply(discordjs, discord, message, embeds).catch(error => console.log(error))
+        sendDM.sendReply(discordjs, discord, message, embeds).catch(error => console.log(error));
     }
 
     // Query Database for userInfo
     var sender
     async function querySenderInfo() {
-        const querySender = fauna.paginate(q.Match(q.Index("discord.users.allInfo"), message.author.id))
+        const querySender = fauna.paginate(q.Match(q.Index("discord.users.allInfo"), message.author.id));
         querySender.each(function (page) {
             sender = page
-        })
+        });
     }
-    querySenderInfo().catch(error => console.log(error))
+    querySenderInfo().catch(error => console.log(error));
 
     async function checkisBlacklisted() {
-        console.log(`running blacklist check`)
+        console.log(`running blacklist check`);
         if (typeof sender !== "undefined") {
-            console.log(`sender exists`)
-            console.log(sender)
+            console.log(`sender exists`);
+            console.log(sender);
             if (sender.length !== 0) {
                 if (sender[0][3] == true) {
                     message.member.kick().then(() => {
-                        message.channel.send(embeds.blacklistKick)
-                        message.author.send(embeds.blacklistDM)
-                    }).catch(error => message.channel.send(`Hmm, there was a problem timing out blacklisted user ${message.author.username}, Only bad very bad people are put on the blacklist so keep an eye on them, okay? error: ${error}`))
+                        message.channel.send(embeds.blacklistKick);
+                        message.author.send(embeds.blacklistDM);
+                    }).catch(error => message.channel.send(`Hmm, there was a problem timing out blacklisted user ${message.author.username}, Only bad very bad people are put on the blacklist so keep an eye on them, okay? error: ${error}`));
                 }
             } else {
-                console.log(`Sender does not exist, creating entry`)
-                fauna.query(q.Create(q.Collection("discord_users"), {data: {"id": message.author.id,"username": message.author.username,"isAdmin": false,"isBlacklisted": false}}))
+                console.log(`Sender does not exist, creating entry`);
+                fauna.query(q.Create(q.Collection("discord_users"), {data: {"id": message.author.id,"username": message.author.username,"isAdmin": false,"isBlacklisted": false}}));
             }
         } else {
             setTimeout(checkisBlacklisted, 250)
@@ -111,7 +112,7 @@ discord.on('message', message => {
 
     // !purge
     // Bulk delete messages
-    if (message.content.startsWith(`${config.masterConfig.prefix}purge`)) {
+    if (message.content.startsWith(`${SBconfig.masterConfig.prefix}purge`)) {
         if (message.member.hasPermission(['ADMINISTRATOR'])) {
             var purgeCount = message.content.split(' ')[1]
             message.channel.bulkDelete(purgeCount)
@@ -124,42 +125,8 @@ discord.on('message', message => {
     }
 
     // !kick
-    if (message.content.startsWith(`${config.masterConfig.prefix}kick`)) {
-        if (message.member.hasPermission(['KICK_MEMBERS'])) {
-            let memberToKick = message.mentions.members.first();
-            if (memberToKick) {
-                memberToKick.kick({reason: `Manually kicked by ${message.author.username}`}).then((member) => {
-                    message.channel.send(embeds.kickMessage)
-                    sendDM.sendKicked(discordjs, discord, message, embeds)
-                })
-            }
-        } else if (sender[0][3] == true) {
-            let memberToKick = message.mentions.members.first();
-            if (memberToKick) {
-                memberToKick.kick({reason: `Manually kicked by ${message.author.username}`}).then((member) => {
-                    message.channel.send(embeds.kickMessage)
-                    sendDM.sendKicked(discordjs, discord, message, embeds)
-                })
-            }
-        }
-    }
+    punish.kick(SBconfig, discordjs, discord, message, sender);
 
     // !ban
-    if (message.content.startsWith(`${config.masterConfig.prefix}ban`)) {
-        if (message.member.hasPermission('BAN_MEMBERS')) {
-            let memberToBan = message.mentions.members.first();
-            if (memberToBan) {
-                memberToBan.ban({reason: `Manually banned by ${message.author.username}`}).then((member) => {
-                    sendDM.sendBanned(discordjs, discord, message, embeds);
-                })
-            }
-        } else if (sender[0][3] == true) {
-            let memberToBan = message.mentions.members.first();
-            if (memberToBan) {
-                memberToBan.ban({reason: `Manually banned by ${message.author.username}`}).then((member) => {
-                    sendDM.sendBanned(discordjs, discord, message, embeds);
-                })
-            }
-        }
-    }
+    punish.ban(SBconfig, discordjs, discord, message, sender);
 })
