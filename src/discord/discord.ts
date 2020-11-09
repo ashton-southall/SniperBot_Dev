@@ -16,7 +16,7 @@ const q = faunadb.query ;
 const SBconfig = require('../config.json');
 const embeds = require('./submodules/embeds.ts');
 const sendDM = require('./submodules/sendDM.ts');
-const punish = require('./submodules/punish.ts');
+const manualModeration = require('./submodules/manualModeration');
 const {
     Wit,
     log
@@ -111,22 +111,11 @@ discord.on('message', message => {
     checkisBlacklisted().catch(error => console.log(error))
 
     // !purge
-    // Bulk delete messages
-    if (message.content.startsWith(`${SBconfig.masterConfig.prefix}purge`)) {
-        if (message.member.hasPermission(['ADMINISTRATOR'])) {
-            var purgeCount = message.content.split(' ')[1]
-            message.channel.bulkDelete(purgeCount)
-                .then(messages => message.channel.send(`Purged ${messages.size} messages`))
-        } else if (sender[0][3] == true) {
-            var purgeCount = message.content.split(' ')[1]
-            message.channel.bulkDelete(purgeCount)
-                .then(messages => message.channel.send(`A SniperBot admin purged ${messages.size} messages`))
-        }
-    }
+    manualModeration.purge(SBconfig, discordjs, discord, message, sender);
 
     // !kick
-    punish.kick(SBconfig, discordjs, discord, message, sender);
+    manualModeration.kick(SBconfig, discordjs, discord, message, sender);
 
     // !ban
-    punish.ban(SBconfig, discordjs, discord, message, sender);
+    manualModeration.ban(SBconfig, discordjs, discord, message, sender);
 })

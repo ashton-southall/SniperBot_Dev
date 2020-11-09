@@ -40,7 +40,22 @@ async function ban(SBconfig, discordjs, discord, message, sender) {
     }
 }
 
+async function purge(SBconfig, discordjs, discord, message, sender) {
+    if (message.content.startsWith(`${SBconfig.masterConfig.prefix}purge`)) {
+        if (message.member.hasPermission(['ADMINISTRATOR'])) {
+            var purgeCount = message.content.split(' ')[1]
+            message.channel.bulkDelete(purgeCount)
+                .then(messages => message.channel.send(`Purged ${messages.size} messages`))
+        } else if (sender[0][3] == true) {
+            var purgeCount = message.content.split(' ')[1]
+            message.channel.bulkDelete(purgeCount)
+                .then(messages => message.channel.send(`A SniperBot admin purged ${messages.size} messages`))
+        }
+    }
+}
+
 module.exports = {
     kick,
-    ban
+    ban,
+    purge
 }
