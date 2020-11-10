@@ -99,7 +99,7 @@ function runMaster() {
           // Log message Contents
           console.log(`${channel} | ${tags.username} | ${message} || Self: ${self}`)
 
-          // Check if user is blacklisted 
+          // Check if user is blacklisted
           blacklist.checkIfBlacklisted(sender, TMI, channel, tags)
 
           // If Message startswith !sniperbot
