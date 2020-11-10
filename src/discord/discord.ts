@@ -103,7 +103,7 @@ discord.on('message', message => {
             manualModeration.ban(SBconfig, discordjs, discord, message, sender);
 
             // AI
-            AIActions.sendMessageToWit(AI, message, embeds.messageDeleted)
+            AIActions.sendMessage(AI, message, embeds.messageDeleted)
         } else {
             setTimeout(waitForQuery, 250);
         }

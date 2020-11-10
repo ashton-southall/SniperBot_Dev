@@ -1,4 +1,4 @@
-async function sendMessageToWit(AI, message, messageDeletedEmbed) {
+async function sendMessage(AI, message, messageDeletedEmbed) {
     if (message.channel.nsfw == false) {
         AI.message(message, {})
             .then((data) => {
@@ -26,5 +26,5 @@ async function sendMessageToWit(AI, message, messageDeletedEmbed) {
 }
 
 module.exports = {
-    sendMessageToWit
+    sendMessage
 }
