@@ -10,7 +10,7 @@
 // WIT.AI (AI system for interpreting messages)
 // Log4JS (Generates logs containing bot actions)
 //@ts-ignore
-const discordjs = require('discord.js');
+const discordjs = require('discord.js');//@ts-ignore
 const faunadb = require('faunadb');
 const q = faunadb.query ;
 const SBconfig = require('../config.json');
