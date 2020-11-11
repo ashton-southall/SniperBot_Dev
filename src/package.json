@@ -6,7 +6,6 @@
     "discord.js": "^12.4.1",
     "express": "^4.17.1",
     "faunadb": "^3.0.1",
-    "lodash": "^4.17.20",
     "log4js": "^6.3.0",
     "node-wit": "^6.0.0",
     "tmi.js": "^1.5.0",

@@ -13,7 +13,13 @@ async function checkIfBlacklisted(sender, TMI, channel, tags) {
                     "inChannel": false,
                     "channelName": `#${tags.username}`,
                     "isAdmin": false,
-                    "isBlacklisted": false
+                    "isBlacklisted": false,
+                    "options": {
+                        "insultThreshold": "6",
+                        "racismThreshold": "6",
+                        "threatThreshold": "6",
+                        "toxicityThreashold": "6"
+                      }
                 }
             }))
         }
