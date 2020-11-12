@@ -13,6 +13,7 @@
   },
   "devDependencies": {},
   "scripts": {
+    "start": "node ./discord/discord.ts && ./twitch/twitch.ts",
     "twitch": "node ./twitch/twitch.ts",
     "discord": "node ./discord/discord.ts"
   },
