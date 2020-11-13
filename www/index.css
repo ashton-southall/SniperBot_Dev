@@ -118,3 +118,19 @@ body {
     list-style-type: none;
     color: white;
 }
+
+#body {
+    margin-top: 10%;
+    margin-left: 5%;
+    color: white;
+}
+
+#body button {
+    border: none;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 25px;
+    padding-right: 25px;
+    border-radius: 2.5px;
+    cursor: pointer;
+}
