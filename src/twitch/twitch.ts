@@ -89,11 +89,17 @@ function runMaster() {
       if (self) return;
 
       var sender;
+      var channelOptions;
       var querySender = fauna.paginate(q.Match(q.Index("twitch.users.allInfo"), tags.username))
       querySender.each(function (page) {
         sender = page
       })
-      async function waitForQuery() {
+      var queryChannelOptions = fauna.paginate(q.Match(q.Index("twitch.users.channelOptions"), tags.username))
+      queryChannelOptions.each(function (page) {
+        channelOptions = page
+      })
+
+      async function waitForSenderQuery() {
         if (typeof sender !== "undefined") {
           console.log(sender)
           // Log message Contents
@@ -118,13 +124,22 @@ function runMaster() {
               TMI.say(channel, `SniperBot is an Advanced Moderation Bot for Twitch and Discord that utilizes Artificial Intelligence to make Moderation Decisions. Add SniperBot to your Twitch Chanel or Discord Server today and experience next level moderation http://sniperbot.tk`);
             }
           }
-          // Send Message Contents to AI
-          AIActions.sendMessage(AI, TMI, channel, tags, message)
+
+          async function waitForChannelQuery() {
+            if (typeof channelOptions !== "undefined") {
+              console.log(channelOptions[0][0]);
+              AIActions.sendMessage(logger, config, AI, TMI, channel, tags, message, channelOptions);
             } else {
-              setTimeout(waitForQuery, 250)
+              setTimeout(waitForChannelQuery, 250);
+            }
+          }
+          waitForChannelQuery().catch(error => console.log(error));
+          
+            } else {
+              setTimeout(waitForSenderQuery, 250)
             }
       }
-      waitForQuery().catch(error => console.log(error));
+      waitForSenderQuery().catch(error => console.log(error));
       
     });
     // NOTE: anything past this point will not be able to reference anything inside of the delayed script
