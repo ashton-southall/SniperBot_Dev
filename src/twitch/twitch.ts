@@ -127,6 +127,11 @@ function runMaster() {
 
           async function waitForChannelQuery() {
             if (typeof channelOptions !== "undefined") {
+              if (message.toLowerCase().startsWith(`${config.masterConfig.prefix}options`)) {
+                if (`#${tags.username}` == channel) {
+                  TMI.say(channel, `Channel options for channel ${tags.username}: insultThreashold: ${channelOptions[0][0]}, racismThreashold: ${channelOptions[0][1]}, threatThreshold: ${channelOptions[0][2]}, toxicityThreashold ${channelOptions[0][3]}`)
+                }
+              }
               AIActions.sendMessage(logger, config, AI, TMI, channel, tags, message, channelOptions);
             } else {
               setTimeout(waitForChannelQuery, 250);
