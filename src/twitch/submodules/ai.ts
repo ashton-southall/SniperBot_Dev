@@ -5,7 +5,6 @@ async function sendMessage(logger, config, AI, TMI, channel, tags, message, chan
           if (data.intents[0].name == 'Banned' && data.intents[0].confidence > 0.9) {
             if (data.traits) {
               if (data.traits.Insult) {
-                console.log(data.traits.Insult[0].value)
                 if (channelOptions[0][0] > data.traits.Insult[0].value) {
                   logger.info(`Detected: "Insult" in message, Purging Messages From ${tags.username}`);
                   TMI.timeout(channel, tags.username, 1, config.masterConfig.automatedActionReason);

@@ -127,7 +127,6 @@ function runMaster() {
 
           async function waitForChannelQuery() {
             if (typeof channelOptions !== "undefined") {
-              console.log(channelOptions[0][0]);
               AIActions.sendMessage(logger, config, AI, TMI, channel, tags, message, channelOptions);
             } else {
               setTimeout(waitForChannelQuery, 250);
