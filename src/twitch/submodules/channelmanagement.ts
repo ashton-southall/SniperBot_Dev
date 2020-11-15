@@ -1,5 +1,5 @@
 // !sniperbot join
-async function joinChannel(sender, TMI, channel, tags) {
+async function joinChannel(sender, TMI, fauna, q, channel, tags) {
         if (sender[0][2] == true) {
             TMI.say(channel, `${tags.username} SniperBot is already in the channel`)
         } else if (sender[0][2] == false) {
@@ -36,13 +36,13 @@ async function joinChannel(sender, TMI, channel, tags) {
         }
 }
 
-async function leaveChannel(sender, TMI, channel, tags) {
+async function leaveChannel(sender, TMI, fauna, q, channel, tags) {
       if (sender[0][2] == true) {
-          fauna.query(q.Update(q.Ref(q.Collection('twitch_users'), sender[0][0].id), {
+          fauna.query(q.Update(q.Ref(q.Collection('twitch_users'), sender[0][0]), {
             data: {
               inChannel: false
             }
-          }, ))
+          }, )).catch(error => console.log(error))
           TMI.part(tags.username)
             .then((data) => {
               TMI.say(channel, `Successfully left channel ${tags.username}`)

@@ -24,6 +24,7 @@ const q = faunadb.query;//@ts-ignore
 const blacklist = require('./submodules/blacklist.ts');
 const channelmanagement = require('./submodules/channelmanagement.ts');
 const AIActions = require('./submodules/ai.ts');
+const optionsActions = require('./submodules/options.ts');
 
 // Query DB for user info
 var channelList;//@ts-ignore
@@ -104,6 +105,7 @@ function runMaster() {
           console.log(sender)
           // Log message Contents
           console.log(`${channel} | ${tags.username} | ${message} || Self: ${self}`)
+          console.log(sender[0][0])
 
           // Check if user is blacklisted 
           blacklist.checkIfBlacklisted(sender, TMI, channel, tags)
@@ -115,11 +117,11 @@ function runMaster() {
             // Join A Channel
             if (action == 'join') {
               console.log(`Joining Channel`)
-              channelmanagement.joinChannel(sender, TMI, channel, tags).catch(error => console.log(error))
+              channelmanagement.joinChannel(sender, TMI, fauna, q, channel, tags).catch(error => console.log(error))
             } else if (action == 'leave') {
 
               // Leave A Channel
-              channelmanagement.leaveChannel(sender, TMI, channel, tags)
+              channelmanagement.leaveChannel(sender, TMI, fauna, q, channel, tags).catch(error => console.log(error))
             } else {
               TMI.say(channel, `SniperBot is an Advanced Moderation Bot for Twitch and Discord that utilizes Artificial Intelligence to make Moderation Decisions. Add SniperBot to your Twitch Chanel or Discord Server today and experience next level moderation http://sniperbot.tk`);
             }
@@ -127,22 +129,7 @@ function runMaster() {
 
           async function waitForChannelQuery() {
             if (typeof channelOptions !== "undefined") {
-              if (message.toLowerCase().startsWith(`${config.masterConfig.prefix}options`)) {
-                if (`#${tags.username}` == channel) {
-                  var optionToChange = message.split(' ')[1]
-                  if (optionToChange.toLowerCase(`insultthreashold`)) {
-                    //
-                  } else if (optionToChange.toLowerCase(`racismthreashold`)) {
-                    //
-                  } else if (optionToChange.toLowerCase(`threatthreashold`)) {
-                    //
-                  } else if (optionToChange.toLowerCase(`toxicitythreashold`)) {
-                    //
-                  } else {
-                    TMI.say(channel, `Channel options for channel ${tags.username}: insultThreashold: ${channelOptions[0][0]}, racismThreashold: ${channelOptions[0][1]}, threatThreshold: ${channelOptions[0][2]}, toxicityThreashold ${channelOptions[0][3]}`);
-                  } 
-                }
-              }
+              optionsActions.doChannelOptions(sender, message, tags, channel, channelOptions, TMI, fauna, q, config).catch(error => console.log(error))
               AIActions.sendMessage(logger, config, AI, TMI, channel, tags, message, channelOptions);
             } else {
               setTimeout(waitForChannelQuery, 250);
