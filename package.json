@@ -10,9 +10,9 @@
   },
   "devDependencies": {},
   "scripts": {
-    "start": "node /src/main.js",
-    "twitch": "node /src/twitch/twitch.ts",
-    "discord": "node /src/discord/discord.ts"
+    "start": "node ./src/main.js",
+    "twitch": "node ./src/twitch/twitch.js",
+    "discord": "node ./src/discord/discord.js"
   },
   "repository": {
     "type": "git",
