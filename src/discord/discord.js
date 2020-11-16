@@ -18,71 +18,37 @@ const sendDM = require('./submodules/sendDM.js');
 const manualModeration = require('./submodules/manualModeration.js');
 const blacklist = require('./submodules/blacklist.js');
 const AIActions = require('./submodules/ai.js');
-const {
-    Wit,
-    log
-} = require('node-wit')
+const {Wit,log} = require('node-wit')
 
 // Create DiscordJS client
 const discord = new discordjs.Client();
 
 // Configure Dependencies
-const AI = new Wit({
-    accessToken: SBconfig.masterConfig.witToken
-})
-const fauna = new faunadb.Client({
-    secret: SBconfig.masterConfig.faunaDbToken
-})
+const AI = new Wit({accessToken: SBconfig.masterConfig.witToken})
+const fauna = new faunadb.Client({secret: SBconfig.masterConfig.faunaDbToken})
 
 // Set bot status on interval
-discord.once('ready', () => {
-    setInterval(() => {
-        discord.user.setActivity(SBconfig.discordConfig.activity, {
-            type: SBconfig.discordConfig.activity_type
-        })
-    }, 10000)
-});
+discord.once('ready', () => {setInterval(() => {discord.user.setActivity(SBconfig.discordConfig.activity, {type: SBconfig.discordConfig.activity_type})}, 10000)});
 
 // Login to discord with bot token
 discord.login(SBconfig.discordConfig.token);
 
 // Runs for every message
 discord.on('message', message => {
-
     if (message.author.bot) return
-
-    // Log message to console
     console.log(`${message.author.id} | ${message}`);
-
-    // DM Communication
     if (message.channel.type == "dm") {
         sendDM.sendReply(discordjs, discord, message, embeds).catch(error => console.log(error));
     }
-
-    // Query Database for userInfo
     var sender
-    async function querySenderInfo() {
-        const querySender = fauna.paginate(q.Match(q.Index("discord.users.allInfo"), message.author.id));
-        querySender.each(function (page) {
-            sender = page
-        });
-    }
+    async function querySenderInfo() {const querySender = fauna.paginate(q.Match(q.Index("discord.users.allInfo"), message.author.id));querySender.each(function (page) {sender = page});}
     querySenderInfo().catch(error => console.log(error));
-
     async function waitForQuery() {
         if (typeof sender !== 'undefined') {
             blacklist.checkisBlacklisted(SBconfig, discordjs, discord, message, sender);
-
-            // !purge
             manualModeration.purge(SBconfig, discordjs, discord, message, sender);
-
-            // !kick
             manualModeration.kick(SBconfig, discordjs, discord, message, sender);
-
-            // !ban
             manualModeration.ban(SBconfig, discordjs, discord, message, sender);
-
-            // AI
             AIActions.sendMessage(AI, message, embeds.messageDeleted)
         } else {
             setTimeout(waitForQuery, 250);
