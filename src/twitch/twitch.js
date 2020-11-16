@@ -17,7 +17,6 @@
 const tmi = require("tmi.js");
 const config = require('../config.json');
 const {Wit,log} = require('node-wit');
-const log4js = require('log4js');
 const faunadb = require('faunadb');
 const q = faunadb.query;
 const blacklist = require('./submodules/blacklist.js');
@@ -54,23 +53,6 @@ function runMaster() {
       },
       channels: channelList
     };
-    // Log4JS Options
-    log4js.configure({
-      appenders: {
-        twitch: {
-          type: 'file',
-          filename: '/src/logs/twitch.log'
-        }
-      },
-       categories: {
-        default: {
-          appenders: ['twitch'],
-          level: 'info'
-        }
-      }
-    })
-    var logger = log4js.getLogger('twitch');
-    logger.level = 'info';
 
     // Create New TMI + AI Client
     const TMI = new tmi.Client(options)
@@ -129,7 +111,7 @@ function runMaster() {
           async function waitForChannelQuery() {
             if (typeof channelOptions !== "undefined") {
               optionsActions.doChannelOptions(sender, message, tags, channel, channelOptions, TMI, fauna, q, config).catch(error => console.log(error))
-              AIActions.sendMessage(logger, config, AI, TMI, channel, tags, message, channelOptions);
+              AIActions.sendMessage(config, AI, TMI, channel, tags, message, channelOptions);
             } else {
               setTimeout(waitForChannelQuery, 250);
             }

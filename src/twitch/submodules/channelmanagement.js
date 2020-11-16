@@ -15,18 +15,8 @@ async function joinChannel(sender, TMI, fauna, q, channel, tags) {
                 }).catch((err) => {
                     TMI.say(channel, `${tags.username} there was an error joining your channel, please try again later or submit a bug report at http://adfoc.us/54699276390696 Error: ${err}`)
                 });
-
-
         } else {
-            fauna.query(q.Create(q.Collection("twitch_users"), {
-                data: {
-                    "username": tags.username,
-                    "inChannel": true,
-                    "channelName": `#${tags.username}`,
-                    "isAdmin": false,
-                    "isBlacklisted": false
-                }
-            }))
+            fauna.query(q.Create(q.Collection("twitch_users"), {data: {"username": tags.username,"inChannel": true,"channelName": `#${tags.username}`,"isAdmin": false,"isBlacklisted": false}})).catch(error => `ERROR: ${error}`)
             TMI.join(tags.username)
                 .then((data) => {
                     TMI.say(channel, `Successfully joined channel ${tags.username}`)
