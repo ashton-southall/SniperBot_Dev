@@ -25,7 +25,7 @@ const AIActions = require('./submodules/ai.js');
 const optionsActions = require('./submodules/options.js');
 
 var channelList;
-const fauna = new faunadb.Client({secret: config.masterConfig.faunaDbToken});
+const fauna = new faunadb.Client({secret: process.env.FAUNA_TOKEN});
 const channels = fauna.paginate(q.Match(q.Index("twitch.channels"), true));
 channels.each(function (page) {channelList = page});
 
@@ -34,11 +34,11 @@ function runMaster() {
   if (typeof channelList !== "undefined") {
 
     // TMI options
-    let options = {options: {debug: config.twitchConfig.options.debug},connection: {reconnect: config.twitchConfig.options.reconnect,secure: config.twitchConfig.options.secure},identity: {username: config.twitchConfig.connection.username,password: config.twitchConfig.connection.password},channels: channelList};
+    let options = {options: {debug: config.twitchConfig.options.debug},connection: {reconnect: config.twitchConfig.options.reconnect,secure: config.twitchConfig.options.secure},identity: {username: process.env.TWITCH_USERNAME,password: process.env.TWITCH_OAUTH},channels: channelList};
 
     // Create New TMI + AI Client
     const TMI = new tmi.Client(options)
-    const AI = new Wit({accessToken: config.masterConfig.witToken});
+    const AI = new Wit({accessToken: process.env.WIT_TOKEN});
     console.log(log);
 
     // Connect to twitch servers and join all channels
