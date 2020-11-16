@@ -14,20 +14,19 @@
 // WIT.AI (AI System for reading messages)
 // Log4JS (Creates logs for bot actions)
 // FaunaDB (Data Storage)
-//@ts-ignore
-const tmi = require("tmi.js");//@ts-ignore
-const config = require('../config.json');//@ts-ignore
-const {Wit,log} = require('node-wit');//@ts-ignore
-const log4js = require('log4js');//@ts-ignore
-const faunadb = require('faunadb');//@ts-ignore
-const q = faunadb.query;//@ts-ignore
-const blacklist = require('./submodules/blacklist.ts');
-const channelmanagement = require('./submodules/channelmanagement.ts');
-const AIActions = require('./submodules/ai.ts');
-const optionsActions = require('./submodules/options.ts');
+const tmi = require("tmi.js");
+const config = require('../config.json');
+const {Wit,log} = require('node-wit');
+const log4js = require('log4js');
+const faunadb = require('faunadb');
+const q = faunadb.query;
+const blacklist = require('./submodules/blacklist.js');
+const channelmanagement = require('./submodules/channelmanagement.js');
+const AIActions = require('./submodules/ai.js');
+const optionsActions = require('./submodules/options.js');
 
 // Query DB for user info
-var channelList;//@ts-ignore
+var channelList;
 const fauna = new faunadb.Client({
   secret: config.masterConfig.faunaDbToken
 });
