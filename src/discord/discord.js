@@ -14,11 +14,11 @@ const discordjs = require('discord.js');//@ts-ignore
 const faunadb = require('faunadb');
 const q = faunadb.query ;
 const SBconfig = require('../config.json');
-const embeds = require('./submodules/embeds.ts');
-const sendDM = require('./submodules/sendDM.ts');
-const manualModeration = require('./submodules/manualModeration.ts');
-const blacklist = require('./submodules/blacklist.ts');
-const AIActions = require('./submodules/ai.ts');
+const embeds = require('./submodules/embeds.js');
+const sendDM = require('./submodules/sendDM.js');
+const manualModeration = require('./submodules/manualModeration.js');
+const blacklist = require('./submodules/blacklist.js');
+const AIActions = require('./submodules/ai.js');
 const {
     Wit,
     log
