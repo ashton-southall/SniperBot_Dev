@@ -22,28 +22,9 @@ const {
     Wit,
     log
 } = require('node-wit')
-const log4js = require('log4js');
 
 // Create DiscordJS client
 const discord = new discordjs.Client();
-
-// Configure Log4JS
-log4js.configure({
-    appenders: {
-        discord: {
-            type: 'file',
-            filename: 'src/logs/discord.log'
-        }
-    },
-    categories: {
-        default: {
-            appenders: ["discord"],
-            level: "info"
-        }
-    }
-});
-var logger = log4js.getLogger('discord');
-logger.level = 'info'
 
 // Configure Dependencies
 const AI = new Wit({

@@ -6,13 +6,15 @@ async function checkisBlacklisted(SBconfig, discordjs, discord, message, sender)
         if (sender.length !== 0) {
             if (sender[0][3] == true) {
                 message.member.kick().then(() => {
+                    console.log(`Alert: user ${message.author.id} is blacklisted, kicking from server`);
                     message.channel.send(embeds.blacklistKick);
                     message.author.send(embeds.blacklistDM);
-                }).catch(error => message.channel.send(`Hmm, there was a problem timing out blacklisted user ${message.author.username}, Only bad very bad people are put on the blacklist so keep an eye on them, okay? error: ${error}`));
+                }).catch(error => console.log(`ERROR: ${error}`))
             }
         } else {
-            console.log(`Sender does not exist, creating entry`);
-            fauna.query(q.Create(q.Collection("discord_users"), {data: {"id": message.author.id,"username": message.author.username,"isAdmin": false,"isBlacklisted": false}}));
+            console.log(`Notice: User ${message.author.id} is not in database, creating entry`);
+            fauna.query(q.Create(q.Collection("discord_users"), {data: {"id": message.author.id,"username": message.author.username,"isAdmin": false,"isBlacklisted": false}}))
+            .catch(error => console.log(`ERROR: ${error}`))
         }
     } else {
         setTimeout(checkisBlacklisted, 250)
