@@ -1,4 +1,4 @@
-async function checkisBlacklisted(SBconfig, discordjs, discord, message, sender) {
+async function checkisBlacklisted(config, discordjs, discord, message, sender) {
     console.log(`running blacklist check`);
         console.log(`sender exists`);
         console.log(sender);

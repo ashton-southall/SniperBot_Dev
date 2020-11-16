@@ -1,5 +1,5 @@
-async function kick(SBconfig, discordjs, discord, message, sender) {
-    if (message.content.startsWith(`${SBconfig.masterConfig.prefix}kick`)) {
+async function kick(config, discordjs, discord, message, sender) {
+    if (message.content.startsWith(`${config.masterConfig.prefix}kick`)) {
         if (message.member.hasPermission(['KICK_MEMBERS'])) {
             let memberToKick = message.mentions.members.first();
             if (memberToKick) {
@@ -22,8 +22,8 @@ async function kick(SBconfig, discordjs, discord, message, sender) {
     }
 }
 
-async function ban(SBconfig, discordjs, discord, message, sender) {
-    if (message.content.startsWith(`${SBconfig.masterConfig.prefix}ban`)) {
+async function ban(config, discordjs, discord, message, sender) {
+    if (message.content.startsWith(`${config.masterConfig.prefix}ban`)) {
         if (message.member.hasPermission('BAN_MEMBERS')) {
             let memberToBan = message.mentions.members.first();
             if (memberToBan) {

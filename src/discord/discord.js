@@ -8,27 +8,26 @@ const discordjs = require('discord.js');
 const faunadb = require('faunadb');
 const q = faunadb.query ;
 const {Wit,log} = require('node-wit');
-const SBconfig = require('../config.json');
+const config = require('../config.json');
 const embeds = require('./submodules/embeds.js');
 const sendDM = require('./submodules/sendDM.js');
 const manualModeration = require('./submodules/manualModeration.js');
 const blacklist = require('./submodules/blacklist.js');
 const AIActions = require('./submodules/ai.js');
-const queries = require('./submodules/queries.js');
 
 // Create DiscordJS client
 const discord = new discordjs.Client();
 
 // Configure Dependencies
-const AI = new Wit({accessToken: SBconfig.masterConfig.witToken});
+const AI = new Wit({accessToken: process.env.WIT_TOKEN});
 console.log(log);
-const fauna = new faunadb.Client({secret: SBconfig.masterConfig.faunaDbToken});
+const fauna = new faunadb.Client({secret: process.env.FAUNA_TOKEN});
 
 // Set bot status on interval
-discord.once('ready', () => {setInterval(() => {discord.user.setActivity(SBconfig.discordConfig.activity, {type: SBconfig.discordConfig.activity_type})}, 10000)});
+discord.once('ready', () => {setInterval(() => {discord.user.setActivity(config.discordConfig.activity, {type: config.discordConfig.activity_type})}, 10000)});
 
 // Login to discord with bot token
-discord.login(SBconfig.discordConfig.token);
+discord.login(process.env.DISCORD_TOKEN);
 
 // Runs for every message
 discord.on('message', message => {
@@ -61,10 +60,10 @@ discord.on('message', message => {
             console.log(`Queries finished`)
             console.log(`Sender: ${sender}`)
             console.log(`Server: ${server}`)
-            blacklist.checkisBlacklisted(SBconfig, discordjs, discord, message, sender);
-            manualModeration.purge(SBconfig, discordjs, discord, message, sender);
-            manualModeration.kick(SBconfig, discordjs, discord, message, sender);
-            manualModeration.ban(SBconfig, discordjs, discord, message, sender);
+            blacklist.checkisBlacklisted(config, discordjs, discord, message, sender);
+            manualModeration.purge(config, discordjs, discord, message, sender);
+            manualModeration.kick(config, discordjs, discord, message, sender);
+            manualModeration.ban(config, discordjs, discord, message, sender);
             AIActions.sendMessage(AI, message, embeds.messageDeleted).catch(error => console.log(`ERROR: ${error}`))
         } else {setTimeout(waitForQuery, 100);}
     }
