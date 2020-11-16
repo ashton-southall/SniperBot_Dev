@@ -1,6 +1,5 @@
 async function checkisBlacklisted(SBconfig, discordjs, discord, message, sender) {
     console.log(`running blacklist check`);
-    if (typeof sender !== "undefined") {
         console.log(`sender exists`);
         console.log(sender);
         if (sender.length !== 0) {
@@ -16,10 +15,6 @@ async function checkisBlacklisted(SBconfig, discordjs, discord, message, sender)
             fauna.query(q.Create(q.Collection("discord_users"), {data: {"id": message.author.id,"username": message.author.username,"isAdmin": false,"isBlacklisted": false}}))
             .catch(error => console.log(`ERROR: ${error}`))
         }
-    } else {
-        setTimeout(checkisBlacklisted, 250)
-    }
-
 }
 
 module.exports = {checkisBlacklisted}
