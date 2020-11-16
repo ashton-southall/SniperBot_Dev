@@ -37,9 +37,7 @@ discord.login(SBconfig.discordConfig.token);
 discord.on('message', message => {
     if (message.author.bot) return
     console.log(`${message.author.id} | ${message}`);
-    if (message.channel.type == "dm") {
-        sendDM.sendReply(discordjs, discord, message, embeds).catch(error => console.log(error));
-    }
+    if (message.channel.type == "dm") {sendDM.sendReply(discordjs, discord, message, embeds).catch(error => console.log(error));}
     var sender
     async function querySenderInfo() {const querySender = fauna.paginate(q.Match(q.Index("discord.users.allInfo"), message.author.id));querySender.each(function (page) {sender = page});}
     querySenderInfo().catch(error => console.log(error));
