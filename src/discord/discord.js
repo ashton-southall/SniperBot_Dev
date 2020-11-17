@@ -22,10 +22,10 @@ const discord = new discordjs.Client();
 // Configure Dependencies
 const AI = new Wit({accessToken: process.env.WIT_TOKEN});
 console.log(log);
-const fauna = new faunadb.Client({secret: process.env.FAUNA_TOKEN});
+const fauna = new faunadb.Client({  secret: process.env.FAUNA_TOKEN });
 
 // Set bot status on interval
-discord.once('ready', () => {setInterval(() => {discord.user.setActivity(config.discordConfig.activity, {type: config.discordConfig.activity_type})}, 10000)});
+discord.once('ready', () => {setInterval(() => {    discord.user.setActivity(config.discordConfig.activity, {type: config.discordConfig.activity_type}) }, 10000)   });
 
 // Login to discord with bot token
 discord.login(process.env.DISCORD_TOKEN);
@@ -34,9 +34,9 @@ discord.login(process.env.DISCORD_TOKEN);
 discord.on('message', message => {
     if (message.author.bot) return
     console.log(`${message.guild.id} | ${message.author.id} | ${message}`);
-    if (message.channel.type == "dm") {sendDM.sendReply(discordjs, discord, message, embeds).catch(error => console.log(error));};
-    var server
-    var sender
+    if (message.channel.type == "dm") { sendDM.sendReply(discordjs, discord, message, embeds).catch(error => console.log(error));   };
+
+    var server; var sender
     async function runQueries() {
         console.log(`Running queries for server: ${message.guild.id} and sender: ${message.author.id}`)
         async function senderQuery() {
@@ -49,9 +49,9 @@ discord.on('message', message => {
             if (server.length == 0) {   await fauna.query(q.Create(q.Collection("discord_servers"), {data: {"id": message.guild.id,"options": {"insultThreshold": "6","racismThreshold": "6","threatThreshold": "6","toxicityThreshold": "6"}}})).catch(error => `ERROR: ${error}`);    setTimeout(serverQuery, 10000)  } 
             else {  waitForQuery()  }
         }
-        senderQuery();
-        serverQuery();
+        senderQuery();  serverQuery();
     }
+
     async function waitForQuery() {
         if (typeof sender !== 'undefined' && typeof server !== "undefined") {
             console.log(`Queries finished`)
