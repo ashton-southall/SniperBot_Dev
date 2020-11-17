@@ -6,3 +6,4 @@ package-lock.json
 .faunarc
 .vscode/
 doc/
+.env
