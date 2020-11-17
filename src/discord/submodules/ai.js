@@ -25,7 +25,7 @@ async function sendMessage(AI, message, messageDeletedEmbed) {
                         }).catch(console.log(`ERROR: ${error}`))
                     }
                 }
-            })
+            }).catch(err => console.err);
     }
 }
 
