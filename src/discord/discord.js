@@ -15,6 +15,7 @@ const manualModeration = require('./submodules/manualModeration.js');
 const blacklist = require('./submodules/blacklist.js');
 const AIActions = require('./submodules/ai.js');
 const commands = require('./submodules/commands.js');
+const options = require('./submodules/options.js');
 
 // Create DiscordJS client
 const discord = new discordjs.Client();
