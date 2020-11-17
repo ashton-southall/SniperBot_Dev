@@ -1,6 +1,6 @@
 async function doChannelOptions(sender, message, tags, channel, channelOptions, TMI, fauna, q, config) {
     if (message.toLowerCase().startsWith(`${config.masterConfig.prefix}options`)) {
-        if (`#${tags.username}` == channel || sender[0][4]) {
+        if (`#${tags.username}` == channel || sender[0][4] == true) {
             var optionToChange = message.toLowerCase().split(' ')[1]
             var optionValue = message.split(' ')[2]
             if (typeof optionToChange !== "undefined") {
