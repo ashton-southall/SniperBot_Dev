@@ -14,6 +14,7 @@ const sendDM = require('./submodules/sendDM.js');
 const manualModeration = require('./submodules/manualModeration.js');
 const blacklist = require('./submodules/blacklist.js');
 const AIActions = require('./submodules/ai.js');
+const commands = require('./submodules/commands.js');
 
 // Create DiscordJS client
 const discord = new discordjs.Client();
@@ -45,12 +46,8 @@ discord.on('message', message => {
         async function serverQuery() {
             const queryServer = await fauna.paginate(q.Match(q.Index("discord.servers"), message.guild.id));
             await queryServer.each(function (page) {server = page});
-            if (server.length == 0) {
-                await fauna.query(q.Create(q.Collection("discord_servers"), {data: {"id": message.guild.id,"options": {"insultThreshold": "6","racismThreshold": "6","threatThreshold": "6","toxicityThreshold": "6"}}})).catch(error => `ERROR: ${error}`)
-                setTimeout(serverQuery, 10000)
-            } else {
-                waitForQuery()
-            }
+            if (server.length == 0) {   await fauna.query(q.Create(q.Collection("discord_servers"), {data: {"id": message.guild.id,"options": {"insultThreshold": "6","racismThreshold": "6","threatThreshold": "6","toxicityThreshold": "6"}}})).catch(error => `ERROR: ${error}`);    setTimeout(serverQuery, 10000)  } 
+            else {  waitForQuery()  }
         }
         senderQuery();
         serverQuery();
@@ -65,7 +62,8 @@ discord.on('message', message => {
             manualModeration.kick(config, discordjs, discord, message, sender);
             manualModeration.ban(config, discordjs, discord, message, sender);
             AIActions.sendMessage(AI, message, embeds.messageDeleted).catch(error => console.log(`ERROR: ${error}`))
-        } else {setTimeout(waitForQuery, 100);}
+            if (message.content == `${config.masterConfig.prefix}ping`) {   commands.ping(discord, message) }
+        } else {    setTimeout(waitForQuery, 100);  }
     }
    runQueries().catch(error => console.log(error));
 })
