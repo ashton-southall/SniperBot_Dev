@@ -4,6 +4,7 @@
   "description": "Advanced Moderation Bot for Twitch and Discord that utilizes Artificial Intelligence to make Moderation Decisions",
   "dependencies": {
     "discord.js": "^12.4.1",
+    "dotenv": "^8.2.0",
     "faunadb": "^3.0.1",
     "node-wit": "^6.0.0",
     "tmi.js": "^1.5.0"
