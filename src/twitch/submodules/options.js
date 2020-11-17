@@ -31,7 +31,7 @@ async function doChannelOptions(sender, message, tags, channel, channelOptions, 
                     }
                 }
             } else {
-                TMI.say(channel, `Channel options for channel ${tags.username}: insultThreshold: ${channelOptions[0][0]}, racismThreshold: ${channelOptions[0][1]}, threatThreshold: ${channelOptions[0][2]}, toxicityThreshold ${channelOptions[0][3]}`);
+                TMI.say(channel, `Channel options for channel ${channel}: insultThreshold: ${channelOptions[0][0]}, racismThreshold: ${channelOptions[0][1]}, threatThreshold: ${channelOptions[0][2]}, toxicityThreshold ${channelOptions[0][3]}`);
             }
         }
     }
