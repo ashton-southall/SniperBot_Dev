@@ -1,4 +1,4 @@
 require('dotenv').config()
 
-const discord = require('./discord/discord.js');
-const twitch = require('./twitch/twitch.js');
+require('./discord/discord.js');
+require('./twitch/twitch.js');
