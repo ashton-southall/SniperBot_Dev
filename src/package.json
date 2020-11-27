@@ -4,7 +4,7 @@
   "description": "The best Twitch and Discord moderation bot based on blacklist",
   "main": "sniperbot.js",
   "dependencies": {
-    "discord.js": "^12.4.1",
+    "discord.js": "^12.5.1",
     "express": "^4.17.1",
     "log4js": "^6.3.0",
     "node-wit": "^6.0.0",
