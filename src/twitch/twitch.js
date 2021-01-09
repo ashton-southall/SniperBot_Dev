@@ -26,7 +26,7 @@ const optionsActions = require('./submodules/options.js');
 
 var channelList;
 const fauna = new faunadb.Client({secret: process.env.FAUNA_TOKEN});
-const channels = fauna.paginate(q.Match(q.Index("twitch.channels"), true));
+const channels = fauna.paginate(q.Match(q.Index("twitch.channelList"), true));
 channels.each(function (page) {channelList = page});
 
 // Main script | waitFor database results before running
