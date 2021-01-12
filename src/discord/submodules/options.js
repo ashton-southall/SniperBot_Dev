@@ -1,8 +1,8 @@
 async function doChannelOptions(config, discordjs, discord, message, sender, server, fauna, q) {
-    if (message.toLowerCase().startsWith(`${config.masterConfig.prefix}options`)) {
-        if (`#${tags.username}` == channel || sender[0][4] == true) {
-            var optionToChange = message.toLowerCase().split(' ')[1]
-            var optionValue = message.split(' ')[2]
+    if (message.content.startsWith(`${config.masterConfig.prefix}options`)) {
+        if (message.member.hasPermission(['ADMINISTRATOR']) || sender[0][2] == true) {
+            var optionToChange = message.content.split(' ')[1]
+            var optionValue = message.content.split(' ')[2]
             if (typeof optionToChange !== "undefined") {
                 if (typeof optionValue !== "undefined") {
                     if (optionToChange == 'insultthreshold') {

@@ -53,7 +53,7 @@ discord.on('message', message => {
     };
 
     var server;
-    var sender
+    var sender;
     async function runQueries() {
         console.log(`Running queries for server: ${message.guild.id} and sender: ${message.author.id}`)
         async function senderQuery() {
