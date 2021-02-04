@@ -92,7 +92,7 @@ discord.on('message', message => {
         if (typeof sender !== 'undefined' && typeof server !== "undefined") {
             console.log(`Queries finished`)
             console.log(`Sender: ${sender}`)
-            console.log(`Server: ${server}`)
+            console.log(`Server: ${server.options}`)
             options.doChannelOptions(config, discordjs, discord, message, sender, server, fauna, q).catch(error => console.log(error))
             blacklist.checkisBlacklisted(config, discordjs, discord, message, sender);
             manualModeration.purge(config, discordjs, discord, message, sender);
