@@ -94,7 +94,6 @@ discord.on('message', message => {
             console.log(`Queries finished`)
             console.log(`Sender: ${sender}`)
             console.log(`Server: ${server}`)
-            console.log(`========`)
             options.doChannelOptions(config, discordjs, discord, message, sender, server, fauna, q).catch(error => console.log(error))
             blacklist.checkisBlacklisted(config, discordjs, discord, message, sender);
             manualModeration.purge(config, discordjs, discord, message, sender);
@@ -104,6 +103,7 @@ discord.on('message', message => {
             if (message.content == `${config.masterConfig.prefix}ping`) {
                 commands.ping(discord, message)
             }
+            console.log(`========`)
         } else {
             setTimeout(waitForQuery, 100);
         }
