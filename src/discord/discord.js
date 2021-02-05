@@ -27,7 +27,7 @@ const discord = new discordjs.Client();
 const AI = new Wit({
     accessToken: process.env.WIT_TOKEN
 });
-console.log(log);
+console.log(`========\rDiscord\r${log}\r========`);
 const fauna = new faunadb.Client({
     secret: process.env.FAUNA_TOKEN
 });
@@ -47,7 +47,7 @@ discord.login(process.env.DISCORD_TOKEN);
 // Runs for every message
 discord.on('message', message => {
     if (message.author.bot) return
-    console.log(`${message.guild.id} | ${message.author.id} | ${message}`);
+    console.log(`========\rDiscord\r${message.guild.id} | ${message.author.id} | ${message}\r========`);
     if (message.channel.type == "dm") {
         sendDM.sendReply(discordjs, discord, message, embeds).catch(error => console.log(error));
     };
@@ -55,7 +55,7 @@ discord.on('message', message => {
     var server;
     var sender;
     async function runQueries() {
-        console.log(`Running queries for server: ${message.guild.id} and sender: ${message.author.id}`)
+        console.log(`========\rDiscord\rRunning queries for server: ${message.guild.id} and sender: ${message.author.id}\r========`)
         async function senderQuery() {
             const querySender = await fauna.paginate(q.Match(q.Index("discord.users.allInfo"), message.author.id));
             await querySender.each(function (page) {
@@ -90,9 +90,11 @@ discord.on('message', message => {
 
     async function waitForQuery() {
         if (typeof sender !== 'undefined' && typeof server !== "undefined") {
+            console.log(`========\rDiscord`)
             console.log(`Queries finished`)
             console.log(`Sender: ${sender}`)
             console.log(`Server: ${server}`)
+            console.log(`========`)
             options.doChannelOptions(config, discordjs, discord, message, sender, server, fauna, q).catch(error => console.log(error))
             blacklist.checkisBlacklisted(config, discordjs, discord, message, sender);
             manualModeration.purge(config, discordjs, discord, message, sender);
