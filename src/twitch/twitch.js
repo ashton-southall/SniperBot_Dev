@@ -14,6 +14,7 @@
 // WIT.AI (AI System for reading messages)
 // Log4JS (Creates logs for bot actions)
 // FaunaDB (Data Storage)
+require('dotenv').config()
 const tmi = require("tmi.js");
 const config = require('../config.json');
 const {Wit,log} = require('node-wit');
@@ -62,10 +63,10 @@ function runMaster() {
           console.log(sender)
           // Log message Contents
           console.log(`${channel} | ${tags.username} | ${message} || Self: ${self}`)
-          console.log(sender[0][0])
+          console.log(sender[0])
 
           // Check if user is blacklisted 
-          blacklist.checkIfBlacklisted(sender, TMI, channel, tags)
+          blacklist.checkIfBlacklisted(sender, TMI, fauna, q, channel, tags)
 
           // If Message startswith !sniperbot
           if (message.toLowerCase().startsWith(`${config.masterConfig.prefix}sniperbot`)) {

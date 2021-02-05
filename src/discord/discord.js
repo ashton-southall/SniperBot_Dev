@@ -4,6 +4,7 @@
 // ############################################
 // Imports
 // ##########################
+require('dotenv').config()
 const discordjs = require('discord.js');
 const faunadb = require('faunadb');
 const q = faunadb.query;
