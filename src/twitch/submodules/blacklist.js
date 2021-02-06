@@ -22,7 +22,6 @@ async function blacklistManagement(sender, TMI, fauna, q, config, channel, tags,
 
                 function waitForResponse() {
                     if (typeof response !== "undefined") {
-                        console.log(response[0])
                         if (action == 'add') {
                             fauna.query(q.Update(q.Ref(q.Collection('twitch_users'), response[0][0]), {
                                     data: {
