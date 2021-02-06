@@ -17,7 +17,10 @@
 require('dotenv').config()
 const tmi = require("tmi.js");
 const config = require('../config.json');
-const {Wit,log} = require('node-wit');
+const {
+  Wit,
+  log
+} = require('node-wit');
 const faunadb = require('faunadb');
 const q = faunadb.query;
 const blacklist = require('./submodules/blacklist.js');
@@ -26,20 +29,39 @@ const AIActions = require('./submodules/ai.js');
 const optionsActions = require('./submodules/options.js');
 
 var channelList;
-const fauna = new faunadb.Client({secret: process.env.FAUNA_TOKEN});
+const fauna = new faunadb.Client({
+  secret: process.env.FAUNA_TOKEN
+});
 const channels = fauna.paginate(q.Match(q.Index("twitch.channelList"), true));
-channels.each(function (page) {channelList = page});
+channels.each(function (page) {
+  channelList = page
+});
 
 // Main script | waitFor database results before running
 function runMaster() {
   if (typeof channelList !== "undefined") {
 
     // TMI options
-    let options = {options: {debug: config.twitchConfig.options.debug},connection: {reconnect: config.twitchConfig.options.reconnect,secure: config.twitchConfig.options.secure},identity: {username: process.env.TWITCH_USERNAME,password: process.env.TWITCH_OAUTH},channels: channelList};
+    let options = {
+      options: {
+        debug: config.twitchConfig.options.debug
+      },
+      connection: {
+        reconnect: config.twitchConfig.options.reconnect,
+        secure: config.twitchConfig.options.secure
+      },
+      identity: {
+        username: process.env.TWITCH_USERNAME,
+        password: process.env.TWITCH_OAUTH
+      },
+      channels: channelList
+    };
 
     // Create New TMI + AI Client
     const TMI = new tmi.Client(options)
-    const AI = new Wit({accessToken: process.env.WIT_TOKEN});
+    const AI = new Wit({
+      accessToken: process.env.WIT_TOKEN
+    });
     console.log(log);
 
     // Connect to twitch servers and join all channels
@@ -54,9 +76,13 @@ function runMaster() {
       var sender;
       var channelOptions;
       var querySender = fauna.paginate(q.Match(q.Index("twitch.users.allInfo"), tags.username))
-      querySender.each(function (page) {sender = page})
+      querySender.each(function (page) {
+        sender = page
+      })
       var queryChannelOptions = fauna.paginate(q.Match(q.Index("twitch.users.channelOptions"), tags.username))
-      queryChannelOptions.each(function (page) {channelOptions = page})
+      queryChannelOptions.each(function (page) {
+        channelOptions = page
+      })
 
       async function waitForSenderQuery() {
         if (typeof sender !== "undefined") {
@@ -65,8 +91,28 @@ function runMaster() {
           console.log(`${channel} | ${tags.username} | ${message} || Self: ${self}`)
           console.log(sender[0])
 
+          async function checkDB(sender, TMI, fauna, q, channel, tags) {
+            if (typeof sender !== "undefined") {
+                console.log(sender)
+                if (sender.length == 0) {
+                    fauna.query(q.Create(q.Collection("twitch_users"), {
+                        data: {
+                            "username": tags.username,
+                            "inChannel": false,
+                            "channelName": `#${tags.username}`,
+                            "isAdmin": false,
+                            "isBlacklisted": false,
+                        }
+                    })).catch(error => `ERROR: ${error}`)
+                }
+            } else {
+                setTimeout(checkDB, 250);
+            }
+        }
+        checkDB(sender, TMI, fauna, q, channel, tags)
+
           // Check if user is blacklisted 
-          blacklist.checkIfBlacklisted(sender, TMI, fauna, q, channel, tags)
+          blacklist.checkBlacklist(sender, TMI, fauna, q, channel, tags)
 
           // If Message startswith !sniperbot
           if (message.toLowerCase().startsWith(`${config.masterConfig.prefix}sniperbot`)) {
@@ -74,10 +120,10 @@ function runMaster() {
             if (action == 'join') {
               console.log(`Joining Channel`)
               channelmanagement.joinChannel(sender, TMI, fauna, q, channel, tags)
-              .catch(error => console.log(error))
+                .catch(error => console.log(error))
             } else if (action == 'leave') {
               channelmanagement.leaveChannel(sender, TMI, fauna, q, channel, tags)
-              .catch(error => console.log(error))
+                .catch(error => console.log(error))
             } else {
               TMI.say(channel, `SniperBot is an Advanced Moderation Bot for Twitch and Discord that utilizes Artificial Intelligence to make Moderation Decisions. Add SniperBot to your Twitch Chanel or Discord Server today and experience next level moderation http://sniperbot.tk`);
             }
@@ -87,18 +133,24 @@ function runMaster() {
             if (typeof channelOptions !== "undefined") {
               optionsActions.doChannelOptions(sender, message, tags, channel, channelOptions, TMI, fauna, q, config).catch(error => console.log(error))
               AIActions.sendMessage(config, AI, TMI, channel, tags, message, channelOptions);
-            } else {setTimeout(waitForChannelQuery, 250);}
+            } else {
+              setTimeout(waitForChannelQuery, 250);
+            }
           }
           waitForChannelQuery()
-          .catch(error => console.log(error));
-          
-        } else {setTimeout(waitForSenderQuery, 250)}
+            .catch(error => console.log(error));
+
+        } else {
+          setTimeout(waitForSenderQuery, 250)
+        }
       }
       waitForSenderQuery()
-      .catch(error => console.log(error));
+        .catch(error => console.log(error));
     });
     // NOTE: anything past this point will not be able to reference anything inside of the delayed script
-  } else {setTimeout(runMaster, 100);}
+  } else {
+    setTimeout(runMaster, 100);
+  }
 }
 // Run main (delayed) script
 runMaster();

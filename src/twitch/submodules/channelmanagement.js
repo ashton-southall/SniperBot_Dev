@@ -6,7 +6,13 @@ async function joinChannel(sender, TMI, fauna, q, channel, tags) {
 
             fauna.query(q.Update(q.Ref(q.Collection('twitch_users'), sender[0][0]), {
                 data: {
-                    inChannel: true
+                    "inChannel": true,
+                    "options": {
+                      "insultThreshold": "6",
+                      "racismThreshold": "6",
+                      "threatThreshold": "6",
+                      "toxicityThreshold": "6"
+                    }
                 }
             }, )).catch(error => console.log(error))
             TMI.join(tags.username)
