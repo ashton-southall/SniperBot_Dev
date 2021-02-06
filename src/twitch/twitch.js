@@ -86,7 +86,6 @@ function runMaster() {
 
       async function waitForSenderQuery() {
         if (typeof sender !== "undefined") {
-          console.log(sender)
           // Log message Contents
           console.log(`${channel} | ${tags.username} | ${message} || Self: ${self}`)
           console.log(sender[0])
@@ -112,8 +111,8 @@ function runMaster() {
         checkDB(sender, TMI, fauna, q, channel, tags)
 
           // Check if user is blacklisted 
-          blacklist.checkBlacklist(sender, TMI, fauna, q, channel, tags)
-
+        blacklist.checkBlacklist(sender, TMI, config, channel, tags);
+        blacklist.blacklistManagement(sender, TMI, fauna, q, config, channel, tags, message);
           // If Message startswith !sniperbot
           if (message.toLowerCase().startsWith(`${config.masterConfig.prefix}sniperbot`)) {
             var action = message.split(' ')[1];
