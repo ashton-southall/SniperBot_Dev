@@ -1,11 +1,8 @@
 async function checkisBlacklisted(config, discordjs, discord, message, sender) {
-    console.log(`running blacklist check`);
-        console.log(`sender exists`);
-        console.log(sender);
         if (sender.length !== 0) {
             if (sender[0][3] == true) {
                 message.member.kick().then(() => {
-                    console.log(`Alert: user ${message.author.id} is blacklisted, kicking from server`);
+                    console.log(`Notice: user ${message.author.id} is blacklisted, kicking from server`);
                     message.channel.send(embeds.blacklistKick);
                     message.author.send(embeds.blacklistDM);
                 }).catch(error => console.log(`ERROR: ${error}`))
