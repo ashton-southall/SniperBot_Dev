@@ -1,4 +1,4 @@
-//  Master bot script for Discord module
+// Master bot script for Discord module
 // ############################################
 // Confidential, DO NOT SHARE THIS CODE
 // ############################################
@@ -91,7 +91,7 @@ discord.on('message', message => {
 
     async function waitForQuery() {
         if (typeof sender !== 'undefined' && typeof server !== "undefined") {
-            console.log(`========\rDiscord`)
+            console.log(`====Discord====`)
             console.log(`Queries finished`)
             console.log(`Sender: ${sender}`)
             console.log(`Server: ${server}`)
