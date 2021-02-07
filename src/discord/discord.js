@@ -28,7 +28,9 @@ const discord = new discordjs.Client();
 const AI = new Wit({
     accessToken: process.env.WIT_TOKEN
 });
-console.log(`========\rDiscord\r${log}\r========`);
+console.log(`====Discord====`);
+console.log(log);
+console.log(`========`);
 const fauna = new faunadb.Client({
     secret: process.env.FAUNA_TOKEN
 });
@@ -48,7 +50,9 @@ discord.login(process.env.DISCORD_TOKEN);
 // Runs for every message
 discord.on('message', message => {
     if (message.author.bot) return
-    console.log(`========\rDiscord\r${message.guild.id} | ${message.author.id} | ${message}\r========`);
+    console.log(`====Discord====`);
+    console.log(`${message.guild.id} | ${message.author.id} | ${message}`);
+    console.log(`========`)
     if (message.channel.type == "dm") {
         sendDM.sendReply(discordjs, discord, message, embeds).catch(error => console.log(error));
     };
@@ -56,7 +60,9 @@ discord.on('message', message => {
     var server;
     var sender;
     async function runQueries() {
-        console.log(`========\rDiscord\rRunning queries for server: ${message.guild.id} and sender: ${message.author.id}\r========`)
+        console.log(`====Discord====`);
+        console.log(`Running queries for server: ${message.guild.id} and sender: ${message.author.id}`)
+        console.log(`========`);
         async function senderQuery() {
             const querySender = await fauna.paginate(q.Match(q.Index("discord.users.allInfo"), message.author.id));
             await querySender.each(function (page) {
