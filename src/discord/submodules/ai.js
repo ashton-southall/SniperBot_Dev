@@ -1,4 +1,6 @@
-async function sendMessage(AI, message, messageDeletedEmbed) {
+const embeds = require('./embeds.js')
+
+async function sendMessage(AI, message) {
     if (message.channel.nsfw == false) {
         AI.message(message, {})
             .then((data) => {
@@ -6,22 +8,22 @@ async function sendMessage(AI, message, messageDeletedEmbed) {
                     if (data.traits.Insult) {
                         console.log(`Detected: "Insult" in message, Purging Messages From ${tags.username}`);
                         message.delete().then((message) => {
-                        message.channel.send(messageDeletedEmbed).catch(console.log(`ERROR: ${error}`))
+                        message.channel.send(embeds.messageDeleted).catch(console.log(`ERROR: ${error}`))
                         }).catch(console.log(`ERROR: ${error}`))
                     } else if (data.traits.Racism) {
                         console.log(`Detected: "Racism" in message, Purging Messages From ${tags.username}`);
                         message.delete().then((message) => {
-                        message.channel.send(messageDeletedEmbed).catch(console.log(`ERROR: ${error}`))
+                        message.channel.send(embeds.messageDeleted).catch(console.log(`ERROR: ${error}`))
                         }).catch(console.log(`ERROR: ${error}`))
                     } else if (data.traits.Threat) {
                         console.log(`Detected: "Threat" in message, Purging Messages From ${tags.username}`);
                         message.delete().then((message) => {
-                        message.channel.send(messageDeletedEmbed).catch(console.log(`ERROR: ${error}`))
+                        message.channel.send(embeds.messageDeleted).catch(console.log(`ERROR: ${error}`))
                         }).catch(console.log(`ERROR: ${error}`))
                     } else if (data.traits.Toxicity) {
                         console.log(`Detected: "Toxicity" in message, Purging Messages From ${tags.username}`);
                         message.delete().then((message) => {
-                            message.channel.send(messageDeletedEmbed).catch(console.log(`ERROR: ${error}`))
+                            message.channel.send(embeds.messageDeleted).catch(console.log(`ERROR: ${error}`))
                         }).catch(console.log(`ERROR: ${error}`))
                     }
                 }

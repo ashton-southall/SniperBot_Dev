@@ -13,13 +13,6 @@ const {
     log
 } = require('node-wit');
 const config = require('../config.json');
-const embeds = require('./submodules/embeds.js');
-const sendDM = require('./submodules/sendDM.js');
-const manualModeration = require('./submodules/manualModeration.js');
-const blacklist = require('./submodules/blacklist.js');
-const AIActions = require('./submodules/ai.js');
-const commands = require('./submodules/commands.js');
-const options = require('./submodules/options.js');
 
 // Create DiscordJS client
 const discord = new discordjs.Client();
@@ -51,7 +44,8 @@ discord.login(process.env.DISCORD_TOKEN);
 discord.on('message', message => {
     if (message.author.bot) return
     if (message.channel.type == "dm") {
-        sendDM.sendReply(discordjs, discord, message, embeds).catch(error => console.log(error));
+        const sendDM = require('./submodules/sendDM.js');
+        sendDM.sendReply(discordjs, discord, message).catch(error => console.log(error));
     };
     var server;
     var sender;
@@ -68,17 +62,7 @@ discord.on('message', message => {
                 server = page
             });
             if (server.length == 0) {
-                await fauna.query(q.Create(q.Collection("discord_servers"), {
-                    data: {
-                        "id": message.guild.id,
-                        "options": {
-                            "insultThreshold": "6",
-                            "racismThreshold": "6",
-                            "threatThreshold": "6",
-                            "toxicityThreshold": "6"
-                        }
-                    }
-                })).catch(error => `ERROR: ${error}`);
+                createServer();
                 setTimeout(serverQuery, 10000)
             } else {
                 waitForQuery()
@@ -94,12 +78,17 @@ discord.on('message', message => {
             console.log(`Guild: ${message.guild.id} | Author: ${message.author.id} | MSG: ${message}`);
             console.log(`Sender Record: ${sender}`)
             console.log(`Server Record: ${server}`)
+            const AIActions = require('./submodules/ai.js');
+            const options = require('./submodules/options.js');
+            const commands = require('./submodules/commands.js');
+            const manualModeration = require('./submodules/manualModeration.js');
+            const blacklist = require('./submodules/blacklist.js');
             options.doChannelOptions(config, discordjs, discord, message, sender, server, fauna, q).catch(error => console.log(error))
             blacklist.checkisBlacklisted(config, discordjs, discord, message, sender);
             manualModeration.purge(config, discordjs, discord, message, sender);
             manualModeration.kick(config, discordjs, discord, message, sender);
             manualModeration.ban(config, discordjs, discord, message, sender);
-            AIActions.sendMessage(AI, message, embeds.messageDeleted).catch(error => console.log(`ERROR: ${error}`))
+            AIActions.sendMessage(AI, message).catch(error => console.log(`ERROR: ${error}`))
             if (message.content == `${config.masterConfig.prefix}ping`) {
                 commands.ping(discord, message)
             }
@@ -109,4 +98,18 @@ discord.on('message', message => {
         }
     }
     runQueries().catch(error => console.log(error));
+
+    function createServer() {
+        fauna.query(q.Create(q.Collection("discord_servers"), {
+            data: {
+                "id": message.guild.id,
+                "options": {
+                    "insultThreshold": "6",
+                    "racismThreshold": "6",
+                    "threatThreshold": "6",
+                    "toxicityThreshold": "6"
+                }
+            }
+        })).catch(error => `ERROR: ${error}`);
+    }
 })

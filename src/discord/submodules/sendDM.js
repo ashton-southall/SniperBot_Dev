@@ -1,3 +1,5 @@
+const embeds = require('./embeds.js')
+
 async function sendReply(discordjs, discord, message, embeds) {
     console.log(`DMReply Function Called, sending message`)
     const newMessageEmbed = new discordjs.MessageEmbed().setColor('#ff5757').setTitle(`New Message`).addField(`User ID: ${message.author.id}`, `${message}`, true).setTimestamp().setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
