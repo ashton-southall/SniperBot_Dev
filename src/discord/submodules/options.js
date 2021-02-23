@@ -32,7 +32,8 @@ async function doChannelOptions(config, discordjs, discord, message, sender, ser
                     }
                 }
             } else {
-                message.channel.send(`Options for server ${server[0][0]}: insultThreshold: ${server[0][1]}, racismThreshold: ${server[0][2]}, threatThreshold: ${server[0][3]}, toxicityThreshold ${server[0][4]}`);
+                console.log(server[0][1]);
+                message.channel.send(`Options for server ${server[0][1]}: insultThreshold: ${server[0][2]}, racismThreshold: ${server[0][3]}, threatThreshold: ${server[0][4]}, toxicityThreshold ${server[0][5]}`);
             }
         }
     }
