@@ -8,7 +8,7 @@
     "express": "^4.17.1",
     "log4js": "^6.3.0",
     "node-wit": "^6.0.1",
-    "tmi.js": "^1.7.1",
+    "tmi.js": "^1.7.2",
     "twit": "^2.2.11"
   },
   "devDependencies": {},
