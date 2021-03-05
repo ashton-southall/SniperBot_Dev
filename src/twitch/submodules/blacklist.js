@@ -29,7 +29,6 @@ async function blacklistManagement(sender, TMI, fauna, q, config, channel, tags,
                                     }
                                 }))
                                 .then(TMI.say(channel, `${tags.username} -> added ${target} to the global blacklist`))
-
                         } else if (action == 'remove') {
                             fauna.query(q.Update(q.Ref(q.Collection('twitch_users'), response[0][0]), {
                                     data: {

@@ -85,6 +85,7 @@ discord.on('message', message => {
             const blacklist = require('./submodules/blacklist.js');
             options.doChannelOptions(config, discordjs, discord, message, sender, server, fauna, q).catch(error => console.log(error))
             blacklist.checkBlacklist(config, discordjs, discord, message, sender);
+            blacklist.manageBlacklist(config, discordjs, discord, message, sender, fauna, q);
             manualModeration.purge(config, discordjs, discord, message, sender);
             manualModeration.kick(config, discordjs, discord, message, sender);
             manualModeration.ban(config, discordjs, discord, message, sender);

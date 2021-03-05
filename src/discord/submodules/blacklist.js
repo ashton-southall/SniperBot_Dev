@@ -14,4 +14,39 @@ async function checkBlacklist(config, discordjs, discord, message, sender) {
         }
 }
 
-module.exports = {checkBlacklist}
+async function manageBlacklist(config, discordjs, discord, message, sender, fauna, q) {
+    if (message.content.startsWith('!blacklist')) {
+        const mode = message.content.split(' ')[1];
+        const target = message.content.split(' ')[2];
+
+        if (mode == 'add') {
+            if (sender[0][2] == true) {
+                console.log(`Target: ${target}`)
+                var queryTarget = fauna.paginate(q.Match(q.Index("discord.users.allInfo"), target))
+                queryTarget.each(function (page) {
+                    response = page
+                })
+                console.log(`Response: ${response}`)
+                function waitForResponse() {
+                    if (typeof response !== "undefined") {
+                        fauna.query(q.Update(q.Ref(q.Collection('discord_users'), response[0][0]), {
+                            data: {
+                                isBlacklisted: true
+                            }
+                        }))
+                        .then(message.channel.send(`added ${target} to the global blacklist`))
+                    } else {
+                        setTimeout(waitForResponse, 250);
+                    }
+                }
+                waitForResponse()
+            }
+        } else if (mode == 'remove') {
+
+        } else {
+            // Is sender blacklisted
+        }
+    }
+}
+
+module.exports = {checkBlacklist, manageBlacklist}
