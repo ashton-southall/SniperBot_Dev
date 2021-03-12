@@ -8,11 +8,9 @@ require('dotenv').config()
 const discordjs = require('discord.js');
 const faunadb = require('faunadb');
 const q = faunadb.query;
-const {
-    Wit,
-    log
-} = require('node-wit');
+const {Wit,log} = require('node-wit');
 const config = require('../config.json');
+const handler = require('./handler.js')
 
 // Create DiscordJS client
 const discord = new discordjs.Client();
@@ -79,21 +77,8 @@ discord.on('message', message => {
             console.log(`Sender Record: ${sender}`)
             console.log(`Server Record: ${server}`)
             const AIActions = require('./submodules/ai.js');
-            const options = require('./submodules/options.js');
-            const commands = require('./submodules/commands.js');
-            const manualModeration = require('./submodules/manualModeration.js');
-            const blacklist = require('./submodules/blacklist.js');
-            options.doChannelOptions(config, discordjs, discord, message, sender, server, fauna, q).catch(error => console.log(error))
-            blacklist.checkBlacklist(config, discordjs, discord, message, sender);
-            blacklist.manageBlacklist(config, discordjs, discord, message, sender, fauna, q);
-            manualModeration.purge(config, discordjs, discord, message, sender);
-            manualModeration.kick(config, discordjs, discord, message, sender);
-            manualModeration.ban(config, discordjs, discord, message, sender);
             AIActions.sendMessage(AI, message).catch(error => console.log(`ERROR: ${error}`))
-            if (message.content == `${config.masterConfig.prefix}ping`) {
-                commands.ping(discord, message)
-            }
-            console.log(`========`)
+            handler.run(config, discordjs, discord, message, sender, server, fauna, q)
         } else {
             setTimeout(waitForQuery, 100);
         }
