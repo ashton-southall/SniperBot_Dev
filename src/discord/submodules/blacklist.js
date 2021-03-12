@@ -1,4 +1,4 @@
-async function checkBlacklist(config, discordjs, discord, message, sender) {
+async function checkBlacklist(config, discordjs, discord, fauna, q, message, sender) {
     if (sender.length !== 0) {
         if (sender[0][3] == true) {
             message.member.kick().then(() => {
