@@ -2,9 +2,11 @@ async function checkBlacklist(config, discordjs, discord, fauna, q, message, sen
     if (sender.length !== 0) {
         if (sender[0][3] == true) {
             message.member.kick().then(() => {
+                message.channel.startTyping();
                 console.log(`Notice: user ${message.author.id} is blacklisted, kicking from server`);
                 message.channel.send(embeds.blacklistKick);
                 message.author.send(embeds.blacklistDM);
+                message.channel.stopTyping();
             }).catch(error => console.log(`ERROR: ${error}`))
         }
     } else {
@@ -28,6 +30,7 @@ async function manageBlacklist(config, discordjs, discord, message, sender, faun
 
         if (mode == 'add') {
             if (sender[0][2] == true) {
+                message.channel.startTyping();
                 console.log(`Target: ${target}`)
                 var queryTarget = fauna.paginate(q.Match(q.Index("discord.users.allInfo"), target))
                 queryTarget.each(function (page) {
@@ -45,11 +48,13 @@ async function manageBlacklist(config, discordjs, discord, message, sender, faun
                     } else {
                         setTimeout(waitForResponse, 250);
                     }
+                    message.channel.stopTyping();
                 }
                 waitForResponse()
             }
         } else if (mode == 'remove') {
             if (sender[0][2] == true) {
+                message.channel.startTyping();
                 console.log(`Target: ${target}`)
                 var queryTarget = fauna.paginate(q.Match(q.Index("discord.users.allInfo"), target))
                 queryTarget.each(function (page) {
@@ -67,6 +72,7 @@ async function manageBlacklist(config, discordjs, discord, message, sender, faun
                     } else {
                         setTimeout(waitForResponse, 250);
                     }
+                    message.channel.stopTyping();
                 }
                 waitForResponse()
             }
