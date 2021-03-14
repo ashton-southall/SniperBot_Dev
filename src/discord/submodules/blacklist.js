@@ -7,8 +7,8 @@ async function checkBlacklist(config, discordjs, discord, fauna, q, message, sen
                 message.channel.send(embeds.blacklistKick);
                 message.author.send(embeds.blacklistDM);
                 message.channel.stopTyping();
-            }).catch(error => console.log(`ERROR: ${error}`))
-        }
+            }).catch(error => console.log(`ERROR: ${error}`));
+        };
     } else {
         console.log(`Notice: User ${message.author.id} is not in database, creating entry`);
         fauna.query(q.Create(q.Collection("discord_users"), {
@@ -19,9 +19,9 @@ async function checkBlacklist(config, discordjs, discord, fauna, q, message, sen
                     "isBlacklisted": false
                 }
             }))
-            .catch(error => console.log(`ERROR: ${error}`))
-    }
-}
+            .catch(error => console.log(`ERROR: ${error}`));
+    };
+};
 
 async function manageBlacklist(config, discordjs, discord, message, sender, fauna, q) {
     if (message.content.startsWith('!blacklist')) {
@@ -31,11 +31,11 @@ async function manageBlacklist(config, discordjs, discord, message, sender, faun
         if (mode == 'add') {
             if (sender[0][2] == true) {
                 message.channel.startTyping();
-                console.log(`Target: ${target}`)
-                var queryTarget = fauna.paginate(q.Match(q.Index("discord.users.allInfo"), target))
+                console.log(`Target: ${target}`);
+                var queryTarget = fauna.paginate(q.Match(q.Index("discord.users.allInfo"), target));
                 queryTarget.each(function (page) {
                     response = page
-                })
+                });
 
                 function waitForResponse() {
                     if (typeof response !== "undefined") {
@@ -44,22 +44,22 @@ async function manageBlacklist(config, discordjs, discord, message, sender, faun
                                     isBlacklisted: true
                                 }
                             }))
-                            .then(message.channel.send(`added ${target} to the global blacklist`))
+                            .then(message.channel.send(`added ${target} to the global blacklist`));
                     } else {
                         setTimeout(waitForResponse, 250);
-                    }
+                    };
                     message.channel.stopTyping();
-                }
-                waitForResponse()
-            }
+                };
+                waitForResponse();
+            };
         } else if (mode == 'remove') {
             if (sender[0][2] == true) {
                 message.channel.startTyping();
-                console.log(`Target: ${target}`)
-                var queryTarget = fauna.paginate(q.Match(q.Index("discord.users.allInfo"), target))
+                console.log(`Target: ${target}`);
+                var queryTarget = fauna.paginate(q.Match(q.Index("discord.users.allInfo"), target));
                 queryTarget.each(function (page) {
                     response = page
-                })
+                });
 
                 function waitForResponse() {
                     if (typeof response !== "undefined") {
@@ -68,19 +68,19 @@ async function manageBlacklist(config, discordjs, discord, message, sender, faun
                                     isBlacklisted: false
                                 }
                             }))
-                            .then(message.channel.send(`Removed ${target} from the global blacklist`))
+                            .then(message.channel.send(`Removed ${target} from the global blacklist`));
                     } else {
                         setTimeout(waitForResponse, 250);
-                    }
+                    };
                     message.channel.stopTyping();
-                }
-                waitForResponse()
-            }
+                };
+                waitForResponse();
+            };
         } else {
             // Is sender blacklisted
-        }
-    }
-}
+        };
+    };
+};
 
 module.exports = {
     checkBlacklist,

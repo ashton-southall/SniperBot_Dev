@@ -1,7 +1,7 @@
 //@ts-ignore
 const discordjs = require('discord.js');
 //@ts-ignore
-const config = require('../../config.json')
+const config = require('../../config.json');
 
 const DMReply = new discordjs.MessageEmbed()
     .setColor('#ff5757')

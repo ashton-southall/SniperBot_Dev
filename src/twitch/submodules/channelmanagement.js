@@ -13,12 +13,12 @@ async function joinChannel(sender, TMI, fauna, q, channel, tags) {
           "toxicityThreshold": "6"
         }
       }
-    }, )).catch(error => console.log(error))
+    }, )).catch(error => console.log(error));
     TMI.join(tags.username)
       .then((data) => {
-        TMI.say(channel, `Successfully joined channel ${tags.username}`)
+        TMI.say(channel, `Successfully joined channel ${tags.username}`);
       }).catch((err) => {
-        TMI.say(channel, `${tags.username} there was an error joining your channel, please try again later or submit a bug report at http://adfoc.us/54699276390696 Error: ${err}`)
+        TMI.say(channel, `${tags.username} there was an error joining your channel, please try again later or submit a bug report at http://adfoc.us/54699276390696 Error: ${err}`);
       });
   } else {
     fauna.query(q.Create(q.Collection("twitch_users"), {
@@ -29,15 +29,15 @@ async function joinChannel(sender, TMI, fauna, q, channel, tags) {
         "isAdmin": false,
         "isBlacklisted": false
       }
-    })).catch(error => `ERROR: ${error}`)
+    })).catch(error => `ERROR: ${error}`);
     TMI.join(tags.username)
       .then((data) => {
-        TMI.say(channel, `Successfully joined channel ${tags.username}`)
+        TMI.say(channel, `Successfully joined channel ${tags.username}`);
       }).catch((err) => {
-        TMI.say(channel, `${tags.username} there was an error joining your channel, please try again later or submit a bug report at http://adfoc.us/54699276390696 Error: ${err}`)
+        TMI.say(channel, `${tags.username} there was an error joining your channel, please try again later or submit a bug report at http://adfoc.us/54699276390696 Error: ${err}`);
       });
-  }
-}
+  };
+};
 
 async function leaveChannel(sender, TMI, fauna, q, channel, tags) {
   if (sender[0][2] == true) {
@@ -45,23 +45,22 @@ async function leaveChannel(sender, TMI, fauna, q, channel, tags) {
       data: {
         inChannel: false
       }
-    }, )).catch(error => console.log(error))
+    }, )).catch(error => console.log(error));
     TMI.part(tags.username)
       .then((data) => {
-        TMI.say(channel, `Successfully left channel ${tags.username}`)
+        TMI.say(channel, `Successfully left channel ${tags.username}`);
       }).catch((err) => {
-        TMI.say(channel, `${tags.username} there was an error leaving your channel, please try again later or submit a bug report at http://adfoc.us/54699276390696 Error: ${err}`)
+        TMI.say(channel, `${tags.username} there was an error leaving your channel, please try again later or submit a bug report at http://adfoc.us/54699276390696 Error: ${err}`);
       });
 
   } else if (sender[0][2] == false) {
-    TMI.say(channel, `${tags.username} SniperBot is not in that channel`)
-
+    TMI.say(channel, `${tags.username} SniperBot is not in that channel`);
   } else {
-    TMI.say(channel, `${tags.username} Database query returned null, please ensure sniperbot is in your channel before trying to remove it`)
-  }
-}
+    TMI.say(channel, `${tags.username} Database query returned null, please ensure sniperbot is in your channel before trying to remove it`);
+  };
+};
 
 module.exports = {
   joinChannel,
   leaveChannel
-}
+};

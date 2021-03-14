@@ -1,20 +1,7 @@
 // Master bot script fot twitch module
 // #################################################
 // Confidential, DO NOT SHARE THIS CODE
-//
-// #### TO DO ####
-//
-// Add !leave command
-// **Critical** Add ability to change inChannel value when joining channels for users who already have a document in the database
-
-// Imports
-// ###########################
-// TMI (Twitch bot library)
-// Config File (Contains Secrets)
-// WIT.AI (AI System for reading messages)
-// Log4JS (Creates logs for bot actions)
-// FaunaDB (Data Storage)
-require('dotenv').config()
+require('dotenv').config();
 const tmi = require("tmi.js");
 const config = require('../config.json');
 const {
@@ -58,7 +45,7 @@ function runMaster() {
     };
 
     // Create New TMI + AI Client
-    const TMI = new tmi.Client(options)
+    const TMI = new tmi.Client(options);
     const AI = new Wit({
       accessToken: process.env.WIT_TOKEN
     });
@@ -75,24 +62,24 @@ function runMaster() {
 
       var sender;
       var channelOptions;
-      var querySender = fauna.paginate(q.Match(q.Index("twitch.users.allInfo"), tags.username))
+      var querySender = fauna.paginate(q.Match(q.Index("twitch.users.allInfo"), tags.username));
       querySender.each(function (page) {
         sender = page
-      })
-      var queryChannelOptions = fauna.paginate(q.Match(q.Index("twitch.users.channelOptions"), tags.username))
+      });
+      var queryChannelOptions = fauna.paginate(q.Match(q.Index("twitch.users.channelOptions"), tags.username));
       queryChannelOptions.each(function (page) {
         channelOptions = page
-      })
+      });
 
       async function waitForSenderQuery() {
         if (typeof sender !== "undefined") {
           // Log message Contents
-          console.log(`${channel} | ${tags.username} | ${message} || Self: ${self}`)
-          console.log(sender[0])
+          console.log(`${channel} | ${tags.username} | ${message} || Self: ${self}`);
+          console.log(sender[0]);
 
           async function checkDB(sender, TMI, fauna, q, channel, tags) {
             if (typeof sender !== "undefined") {
-                console.log(sender)
+                console.log(sender);
                 if (sender.length == 0) {
                     fauna.query(q.Create(q.Collection("twitch_users"), {
                         data: {
@@ -102,13 +89,13 @@ function runMaster() {
                             "isAdmin": false,
                             "isBlacklisted": false,
                         }
-                    })).catch(error => `ERROR: ${error}`)
+                    })).catch(error => `ERROR: ${error}`);
                 }
             } else {
                 setTimeout(checkDB, 250);
-            }
-        }
-        checkDB(sender, TMI, fauna, q, channel, tags)
+            };
+        };
+        checkDB(sender, TMI, fauna, q, channel, tags);
 
           // Check if user is blacklisted 
         blacklist.checkBlacklist(sender, TMI, config, channel, tags);
@@ -117,30 +104,30 @@ function runMaster() {
           if (message.toLowerCase().startsWith(`${config.masterConfig.prefix}sniperbot`)) {
             var action = message.split(' ')[1];
             if (action == 'join') {
-              console.log(`Joining Channel`)
+              console.log(`Joining Channel`);
               channelmanagement.joinChannel(sender, TMI, fauna, q, channel, tags)
-                .catch(error => console.log(error))
+                .catch(error => console.log(error));
             } else if (action == 'leave') {
               channelmanagement.leaveChannel(sender, TMI, fauna, q, channel, tags)
-                .catch(error => console.log(error))
+                .catch(error => console.log(error));
             } else {
               TMI.say(channel, `SniperBot is an Advanced Moderation Bot for Twitch and Discord that utilizes Artificial Intelligence to make Moderation Decisions. Add SniperBot to your Twitch Chanel or Discord Server today and experience next level moderation http://sniperbot.tk`);
-            }
-          }
+            };
+          };
 
           async function waitForChannelQuery() {
             if (typeof channelOptions !== "undefined") {
-              optionsActions.doChannelOptions(sender, message, tags, channel, channelOptions, TMI, fauna, q, config).catch(error => console.log(error))
+              optionsActions.doChannelOptions(sender, message, tags, channel, channelOptions, TMI, fauna, q, config).catch(error => console.log(error));
               AIActions.sendMessage(config, AI, TMI, channel, tags, message, channelOptions);
             } else {
               setTimeout(waitForChannelQuery, 250);
-            }
-          }
+            };
+          };
           waitForChannelQuery()
             .catch(error => console.log(error));
 
         } else {
-          setTimeout(waitForSenderQuery, 250)
+          setTimeout(waitForSenderQuery, 250);
         }
       }
       waitForSenderQuery()

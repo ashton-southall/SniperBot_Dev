@@ -4,7 +4,7 @@
 // ############################################
 // Imports
 // ##########################
-require('dotenv').config()
+require('dotenv').config();
 const discordjs = require('discord.js');
 const faunadb = require('faunadb');
 const q = faunadb.query;
@@ -31,7 +31,7 @@ discord.once('ready', () => {
     setInterval(() => {
         discord.user.setActivity(config.discordConfig.activity, {
             type: config.discordConfig.activity_type
-        })
+        });
     }, 10000)
 });
 
@@ -64,11 +64,11 @@ discord.on('message', message => {
                 setTimeout(serverQuery, 10000);
             } else {
                 waitForQuery();
-            }
-        }
+            };
+        };
         senderQuery();
         serverQuery();
-    }
+    };
 
     async function waitForQuery() {
         if (typeof sender !== 'undefined' && typeof server !== "undefined") {
@@ -81,8 +81,8 @@ discord.on('message', message => {
             handler.run(config, discordjs, discord, message, sender, server, fauna, q);
         } else {
             setTimeout(waitForQuery, 100);
-        }
-    }
+        };
+    };
     runQueries().catch(error => console.log(error));
 
     function createServer() {
@@ -97,5 +97,5 @@ discord.on('message', message => {
                 }
             }
         })).catch(error => `ERROR: ${error}`);
-    }
-})
+    };
+});
