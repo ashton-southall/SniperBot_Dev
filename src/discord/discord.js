@@ -10,7 +10,7 @@ const faunadb = require('faunadb');
 const q = faunadb.query;
 const {Wit,log} = require('node-wit');
 const config = require('../config.json');
-const handler = require('./handler.js')
+const handler = require('./handler.js');
 
 // Create DiscordJS client
 const discord = new discordjs.Client();
@@ -40,7 +40,7 @@ discord.login(process.env.DISCORD_TOKEN);
 
 // Runs for every message
 discord.on('message', message => {
-    if (message.author.bot) return
+    if (message.author.bot) return;
     if (message.channel.type == "dm") {
         const sendDM = require('./submodules/sendDM.js');
         sendDM.sendReply(discordjs, discord, message).catch(error => console.log(error));
@@ -61,9 +61,9 @@ discord.on('message', message => {
             });
             if (server.length == 0) {
                 createServer();
-                setTimeout(serverQuery, 10000)
+                setTimeout(serverQuery, 10000);
             } else {
-                waitForQuery()
+                waitForQuery();
             }
         }
         senderQuery();
@@ -72,13 +72,13 @@ discord.on('message', message => {
 
     async function waitForQuery() {
         if (typeof sender !== 'undefined' && typeof server !== "undefined") {
-            console.log(`====Discord====`)
+            console.log(`====Discord====`);
             console.log(`Guild: ${message.guild.id} | Author: ${message.author.id} | MSG: ${message}`);
-            console.log(`Sender Record: ${sender}`)
-            console.log(`Server Record: ${server}`)
+            console.log(`Sender Record: ${sender}`);
+            console.log(`Server Record: ${server}`);
             const AIActions = require('./submodules/ai.js');
-            AIActions.sendMessage(AI, message).catch(error => console.log(`ERROR: ${error}`))
-            handler.run(config, discordjs, discord, message, sender, server, fauna, q)
+            AIActions.sendMessage(AI, message).catch(error => console.log(`ERROR: ${error}`));
+            handler.run(config, discordjs, discord, message, sender, server, fauna, q);
         } else {
             setTimeout(waitForQuery, 100);
         }
