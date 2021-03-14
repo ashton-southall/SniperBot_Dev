@@ -2,9 +2,10 @@ const options = require('./submodules/options.js');
 const manualModeration = require('./submodules/manualModeration.js');
 const blacklist = require('./submodules/blacklist.js');
 const ping = require('./submodules/ping.js');
+const embeds = require('./submodules/embeds.js');
 
 async function run(config, discordjs, discord, message, sender, server, fauna, q) {
-    options.doChannelOptions(config, discordjs, discord, message, sender, server, fauna, q).catch(error => console.log(error));
+    options.doChannelOptions(config, embeds, discordjs, discord, message, sender, server, fauna, q).catch(error => console.log(error));
     blacklist.checkBlacklist(config, discordjs, discord, fauna, q, message, sender);
     // Add command handling
     blacklist.manageBlacklist(config, discordjs, discord, message, sender, fauna, q);

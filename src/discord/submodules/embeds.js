@@ -60,11 +60,18 @@ const messageDeleted = new discordjs.MessageEmbed()
     .setTimestamp()
     .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
 
+const optionsUpdated = new discordjs.MessageEmbed()
+    .setColor('#ff5757')
+    .setTitle(`Options Updated Successfully`)
+    .setTimestamp()
+    .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+
 module.exports = {
     DMReply,
     blacklistKick,
     blacklistDM,
     kickMessage,
     banMessage,
-    messageDeleted
+    messageDeleted,
+    optionsUpdated
 };
