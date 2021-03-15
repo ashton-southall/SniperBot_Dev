@@ -3,9 +3,10 @@ async function checkBlacklist(config, discordjs, discord, fauna, q, message, sen
         if (sender[0][3] == true) {
             message.member.kick().then(() => {
                 message.channel.startTyping();
-                console.log(`Notice: user ${message.author.id} is blacklisted, kicking from server`);
+                const BlacklistKickLogembed = new discordjs.MessageEmbed().setColor('#ff5757').setTitle(`Blacklisted user kicked`).setDescription(`A user was kicked from a server because they were on the SniperBot global blacklist`).addFields({name: `Sender ID`,value: message.author.id}, {name: `More Info`,value: `**Server** \r${message.guild} (${message.guild.id})`}).setTimestamp().setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
                 message.channel.send(embeds.blacklistKick);
                 message.author.send(embeds.blacklistDM);
+                discord.channels.cache.get("748068812448071750").send(BlacklistKickLogembed).catch(console.log(error => (`ERROR: ${error}`)));
                 message.channel.stopTyping();
             }).catch(error => console.log(`ERROR: ${error}`));
         };
