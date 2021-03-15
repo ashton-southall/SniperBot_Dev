@@ -66,6 +66,37 @@ const optionsUpdated = new discordjs.MessageEmbed()
     .setTimestamp()
     .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
 
+const helpEmbed = new discordjs.MessageEmbed()
+    .setColor('#ff5757')
+    .setThumbnail(`https://i.imgur.com/WFj42aM.png`)
+    .setTitle(`SniperBot By Adsnipers`)
+    .addFields({
+        name: `SniperBot Admin Commands`,
+        value: `Note: These commands can only be used by SniperBot Admins\r ${config.masterConfig.prefix}blacklist {add / remove} {userID}`
+    }, {
+        name: `Server Admin Commands`,
+        value: `${config.masterConfig.prefix}ban {mention_member}\r${config.masterConfig.prefix}kick {mention_member}\r${config.masterConfig.prefix}purge {number}`
+    }, {
+        name: `User Commands`,
+        value: `${config.masterConfig.prefix}help - Shows this`
+    }, {
+        name: '\u200B',
+        value: '\u200B'
+    }, {
+        name: 'More Info',
+        value: 'for more information about SniperBot visit\rhttp://sniperbot.tk\rFor advanced support join the official SniperBot discord to chat with a developer:\rhttps://discord.io/sniperbot\rMore information is also availavle at http://adfoc.us/5469921"',
+        inline: true
+    }, {
+        name: '\u200B',
+        value: '\u200B'
+    }, {
+        name: 'Tip',
+        value: 'You can contact SniperBot developers by messaging SniperBot in DMs, your message will be redirected to SniperBot admins and developers. be sure to leave contact info if you want them to get back to you',
+        inline: true
+    })
+    .setTimestamp()
+    .setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
+
 module.exports = {
     DMReply,
     blacklistKick,
@@ -73,5 +104,6 @@ module.exports = {
     kickMessage,
     banMessage,
     messageDeleted,
-    optionsUpdated
+    optionsUpdated,
+    helpEmbed
 };
