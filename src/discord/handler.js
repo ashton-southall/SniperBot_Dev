@@ -19,7 +19,7 @@ async function run(config, discordjs, discord, message, sender, server, fauna, q
 
 
     if (message.content == `${config.masterConfig.prefix}ping`) {
-        ping.get(discord, message);
+        ping.get(discordjs, discord, message);
     }
 }
 
