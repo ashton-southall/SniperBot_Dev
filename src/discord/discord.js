@@ -77,7 +77,8 @@ discord.on('message', message => {
             console.log(`Sender Record: ${sender}`);
             console.log(`Server Record: ${server}`);
             const AIActions = require('./submodules/ai.js');
-            AIActions.sendMessage(AI, message).catch(error => console.log(`ERROR: ${error}`));
+            AIActions.sendMessage(server, AI, message)
+            .catch(error => console.log(`ERROR: ${error}`));
             handler.run(config, discordjs, discord, message, sender, server, fauna, q);
         } else {
             setTimeout(waitForQuery, 100);
