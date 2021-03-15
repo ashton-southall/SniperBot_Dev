@@ -1,0 +1,28 @@
+{
+  "name": "sniperbot",
+  "version": "2.2.0",
+  "description": "Advanced Moderation Bot for Twitch and Discord that utilizes Artificial Intelligence to make Moderation Decisions",
+  "dependencies": {
+    "discord.js": "^12.4.1",
+    "dotenv": "^8.2.0",
+    "faunadb": "^3.0.1",
+    "node-wit": "^6.0.0",
+    "tmi.js": "^1.5.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node ./src/main.js",
+    "twitch": "node ./src/twitch/twitch.js",
+    "discord": "node ./src/discord/discord.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Adsnipers/SniperBot_dev.git"
+  },
+  "author": "Adsnipers",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Adsnipers/SniperBot/issues"
+  },
+  "homepage": "http://sniperbot.tk"
+}

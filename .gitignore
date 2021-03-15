@@ -2,6 +2,8 @@ node_modules
 users.json
 sniperbot.log
 *.log
-src/config.json
 package-lock.json
+.faunarc
+.vscode/
+doc/
 .env

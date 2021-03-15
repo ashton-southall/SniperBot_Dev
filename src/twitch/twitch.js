@@ -1,216 +1,142 @@
-const tmi = require('tmi.js');
-const fs = require('fs');
-const config = require("../config.json");
-const {Wit,log} = require('node-wit');
-const client = new tmi.Client(config.twitchConfig);
-const AI = new Wit({accessToken: config.masterConfig.wit_token});
-const log4js = require('log4js');
+// Master bot script fot twitch module
+// #################################################
+// Confidential, DO NOT SHARE THIS CODE
+require('dotenv').config();
+const tmi = require("tmi.js");
+const config = require('../config.json');
+const {
+  Wit,
+  log
+} = require('node-wit');
+const faunadb = require('faunadb');
+const q = faunadb.query;
+const blacklist = require('./submodules/blacklist.js');
+const channelmanagement = require('./submodules/channelmanagement.js');
+const AIActions = require('./submodules/ai.js');
+const optionsActions = require('./submodules/options.js');
 
-log4js.configure({
-  appenders: {
-    twitch: {
-      type: 'file',
-      filename: 'src/logs/twitch.log'
-    }
-  },
-  categories: {
-    default: {
-      appenders: ["twitch"],
-      level: "info"
-    }
-  }
+var channelList;
+const fauna = new faunadb.Client({
+  secret: process.env.FAUNA_TOKEN
 });
-var logger = log4js.getLogger('twitch');
-logger.level = 'info';
+const channels = fauna.paginate(q.Match(q.Index("twitch.channelList"), true));
+channels.each(function (page) {
+  channelList = page
+});
 
+// Main script | waitFor database results before running
+function runMaster() {
+  if (typeof channelList !== "undefined") {
 
+    // TMI options
+    let options = {
+      options: {
+        debug: config.twitchConfig.options.debug
+      },
+      connection: {
+        reconnect: config.twitchConfig.options.reconnect,
+        secure: config.twitchConfig.options.secure
+      },
+      identity: {
+        username: process.env.TWITCH_USERNAME,
+        password: process.env.TWITCH_OAUTH
+      },
+      channels: channelList
+    };
 
-console.log('Admins Loaded: ' + config.twitchConfig.users.admins);
-console.log('Channels Loaded: ' + config.twitchConfig.channels);
-console.log('blacklist loaded: ' + config.twitchConfig.users.blacklist);
+    // Create New TMI + AI Client
+    const TMI = new tmi.Client(options);
+    const AI = new Wit({
+      accessToken: process.env.WIT_TOKEN
+    });
+    console.log(log);
 
-client.connect();
+    // Connect to twitch servers and join all channels
+    TMI.connect();
 
-client.on('message', (channel, tags, message, self) => {
+    // Runs for every message
+    TMI.on('message', (channel, tags, message, self) => {
 
-  // Ignore messages sent by the bot
-  if (self) return;
+      // Ignore messages sent by SniperBot
+      if (self) return;
 
-  // AI Moderation
-  // AI Moderation Settings
-  ActionConfidence = '0.9';
-  AutomatedActionReason = `Message automatically purged by SniperBot. report inaccuracies at http://adfoc.us/54699276390696`;
-  // Send message to AI
-  AI.message(message, {})
-    .then((data) => {
-      console.log(data);
-      if (data.intents) {
-        console.log(`Data intents detected`);
-        if (data.intents[0].name == 'bot_message' && data.intents[0].confidence > ActionConfidence) {
-          console.log(data.intents.name);
-          logger.info(`Detected bot_message from ${tags.username}, purging messages from user`);
-          client.timeout(channel, tags.username, 1, `Bot message prevented by SniperBot, report inaccuracies at http://adfoc.us/54699276390696`);
-        }
-        if (data.intents[0].name = 'banned' && data.intents[0].confidence > ActionConfidence) {
-        if (data.traits) {
-          if (data.traits.Insult) {
-            logger.info(`Insult detected in message, Purging Messages From ${tags.username}`);
-            client.timeout(channel, tags.username, 1, AutomatedActionReason);
-          } else if (data.traits.Racism) {
-            logger.info(`Racism detected in message, Purging Messages From ${tags.username}`);
-            client.timeout(channel, tags.username, 1, AutomatedActionReason);
-          } else if (data.traits.Threat) {
-            logger.info(`Threat detected in message, Purging Messages From ${tags.username}`);
-            client.timeout(channel, tags.username, 1, AutomatedActionReason);
-          } else if (data.traits.Toxicity) {
-            logger.info(`Toxicity detected in message, Purging Messages From ${tags.username}`);
-            client.timeout(channel, tags.username, 1, AutomatedActionReason);
-          } else {
-            console.log(data);
-          }
-        }
-      }
-      }
-    })
-    .catch(console.error);
-
-  // Check if the sender is the broadcaster of the channel
-  if ('#' + tags.username == channel) {
-    var isBroadcaster = true;
-  } else {
-    var isBroadcaster = false;
-  }
-
-  // Blacklist Timeout
-  if (config.twitchConfig.users.blacklist.includes(tags.username)) {
-    client.timeout(channel, tags.username, config.blacklist_ban_time, config.blacklist_ban_reason)
-      .then((data) => {
-        logger.info(`Timing out Blacklisted user ${tags.username} for ${config.blacklist_ban_time}`)
-        client.say(channel, '@' + tags.username + ' you are blacklisted via SniperBot and are not permitted to talk in any channel using SniperBot, appeal at http://adfoc.us/54699276390715 [24 hour timeout]');
-        blacklistTimeouts.inc();
-      }).catch((err) => {
-        client.say(channel, 'there was a problem while initiating a timeout on blacklisted user ' + tags.username + ' Error: ' + err);
+      var sender;
+      var channelOptions;
+      var querySender = fauna.paginate(q.Match(q.Index("twitch.users.allInfo"), tags.username));
+      querySender.each(function (page) {
+        sender = page
       });
-  }
+      var queryChannelOptions = fauna.paginate(q.Match(q.Index("twitch.users.channelOptions"), tags.username));
+      queryChannelOptions.each(function (page) {
+        channelOptions = page
+      });
 
-  // Help commands
-  if (message.toLowerCase() === `${config.masterConfig.prefix}commands`) {
-    client.say(channel, `All Sniperbot Commands\rhttp://sniperbot.tk`);
-  }
+      async function waitForSenderQuery() {
+        if (typeof sender !== "undefined") {
+          // Log message Contents
+          console.log(`${channel} | ${tags.username} | ${message} || Self: ${self}`);
+          console.log(sender[0]);
 
-  //Mod Commands
-  if (message.toLowerCase().startsWith(`${config.masterConfig.prefix}ban`)) {
-    var banname = message.split(' ')[1];
-    if (banname) {
-    if (isBroadcaster == true) {
-      client.ban(channel, banname, 'banned by ' + tags.username);
-      client.say(channel, banname + ' successfully banned by ' + tags.username);
-    } else if (tags.mod == true) {
-      client.ban(channel, banname, 'banned by ' + tags.username);
-      client.say(channel, banname + ' successfully banned by ' + tags.username);
-    } else if (users.admins.includes(tags.username)) {
-      client.say(channel, 'admin override enabled, user banned');
-      client.ban(channel, banname, 'Banned by sniperbot admin');
-    } else {
-      client.say(channel, '@' + tags.username + ' that command is for moderators only');
-    }
-  }
-  }
-  if (message.startsWith(`${config.masterConfig.prefix}unban`)) {
-    var unbanname = message.split(' ')[1];
-    if (unbanname) {
-    if (isBroadcaster == true) {
-      client.unban(channel, unbanname);
-      client.say(channel, unbanname + ' has been unbanned by ' + tags.username);
-    } else if (tags.mod == true) {
-      client.unban(channel, unbanname);
-      client.say(channel, unbanname + ' has been unbanned by ' + tags.username);
-    } else if (users.admins.includes(tags.username)) {
-      client.say(channel, 'admin override enabled, user unbanned');
-      client.unban(channel, unbanname, 'unbanned by SniperBot Admin');
-    } else {
-      client.say(channel, '@' + tags.username + ' That command is for moderators only')
-    }
-  }
-  }
+          async function checkDB(sender, TMI, fauna, q, channel, tags) {
+            if (typeof sender !== "undefined") {
+                console.log(sender);
+                if (sender.length == 0) {
+                    fauna.query(q.Create(q.Collection("twitch_users"), {
+                        data: {
+                            "username": tags.username,
+                            "inChannel": false,
+                            "channelName": `#${tags.username}`,
+                            "isAdmin": false,
+                            "isBlacklisted": false,
+                        }
+                    })).catch(error => `ERROR: ${error}`);
+                }
+            } else {
+                setTimeout(checkDB, 250);
+            };
+        };
+        checkDB(sender, TMI, fauna, q, channel, tags);
 
-  // !blacklist (ability for admins to add or remove blacklisted users and phrases)
-  if (message.startsWith(`${config.masterConfig.prefix}blacklist`)) {
-    var mode = message.split(' ')[1];
-    var input1 = message.split(' ')[2];
-    if (config.twitchConfig.users.admins.includes(tags.username)) {
-      if (mode == 'add') {
-        config.twitchConfig.users.blacklist.push(input1);
-        fs.writeFile('src/config.json', JSON.stringify(config, null, 4), 'utf-8', function (err) {
-          if (err) throw err
-        });
-        client.say(channel, 'Added ' + input1 + ' to Global Blacklist');
-      } else if (mode == 'remove') {
-        config.twitchConfig.users.blacklist.splice(config.twitchConfig.users.blacklist.indexOf(input1), 1);
-        fs.writeFile('src/config.json', JSON.stringify(config, null, 4), 'utf-8', function (err) {
-          if (err) throw err
-        });
-        client.say(channel, 'Removed ' + input1 + ' from Global Blacklist');
-      } else {
-        client.say(channel, '@' + tags.username + ` incorrect command usage, please use ${config.masterConfig.prefix}blacklist {add / remove} {username}`);
-      }
-    } else {
-      client.say(channel, '@' + tags.username + ' thats a really powerful command and I cannot let you use it');
-    }
-  }
+          // Check if user is blacklisted 
+        blacklist.checkBlacklist(sender, TMI, config, channel, tags);
+        blacklist.blacklistManagement(sender, TMI, fauna, q, config, channel, tags, message);
+          // If Message startswith !sniperbot
+          if (message.toLowerCase().startsWith(`${config.masterConfig.prefix}sniperbot`)) {
+            var action = message.split(' ')[1];
+            if (action == 'join') {
+              console.log(`Joining Channel`);
+              channelmanagement.joinChannel(sender, TMI, fauna, q, channel, tags)
+                .catch(error => console.log(error));
+            } else if (action == 'leave') {
+              channelmanagement.leaveChannel(sender, TMI, fauna, q, channel, tags)
+                .catch(error => console.log(error));
+            } else {
+              TMI.say(channel, `SniperBot is an Advanced Moderation Bot for Twitch and Discord that utilizes Artificial Intelligence to make Moderation Decisions. Add SniperBot to your Twitch Chanel or Discord Server today and experience next level moderation http://sniperbot.tk`);
+            };
+          };
 
-  // !sniperbot
-  if (message.startsWith(`${config.masterConfig.prefix}sniperbot`)) {
-    var mode = message.split(' ')[1];
-    var input1 = message.split(' ')[2];
-    var input2 = message.split(' ')[3];
-    var senderchannel = tags.username;
-    if (mode == 'join') {
-      if (config.twitchConfig.channels.includes("#" + senderchannel)) {
-        client.say(channel, '@' + tags.username + " SniperBot is already in that channel")
-      } else {
-        config.twitchConfig.channels.push("#" + senderchannel);
-        fs.writeFile('src/config.json', JSON.stringify(config, null, 4), 'utf-8', function (err) {
-          if (err) throw err
-        });
-        client.say(channel, "Successfully joined channel: " + senderchannel);
-        client.join('#' + senderchannel);
-      }
-    } else if (mode == 'leave') {
-      if (config.twitchConfig.channels.includes("#" + senderchannel)) {
-        config.twitchConfig.channels.splice(config.twitchConfig.channels.indexOf("#" + senderchannel), 1);
-        fs.writeFile('src/config.json', JSON.stringify(config, null, 4), 'utf-8', function (err) {
-          if (err) throw err
-        });
-        client.say(channel, "Leaving Channel " + senderchannel + ' if you did not mean to run this command use !sniperbot join in the SniperBot twitch channel');
-        client.leave("#" + senderchannel);
-      } else {
-        client.say(channel, '@' + tags.username + " SniperBot is not in that channel")
-      }
-    } else if (mode == 'restart') {
-      if (config.twitchConfig.users.admins.includes(tags.username)) {
-        client.say(channel, `Restating Module, please wait.`)
-        process.exit(0);
-      } else {
-        client.say(channel, `@${tags.username} that command is way too powerful for me to simply let you use it`)
-      }
-    } else if (mode == 'say') {
-      if (config.twitchConfig.users.admins.includes(tags.username)) {
-        client.say(input1, input2);
-      }
-    }
-    if (mode == 'host') {
-      if (config.twitchConfig.users.admins.includes(tags.username)) {
-        client.host('SniperBotOnTwitch', input1)
-          .then((data) => {
-            client.say(channel, `SniperBot is now hosting ${input1}`);
-          }).catch((err) => {
-            client.say(channel, `There was an error while attempting to host channel ${input1}\rError: ${err}`);
-          });
-      }
-    } else {
-      client.say(channel, `SniperBot is an Advanced Moderation Bot for Twitch and Discord that utilizes Artificial Intelligence to make Moderation Decisions. Add SniperBot to your Twitch Chanel or Discord Server today and experience next level moderation  \rhttp://sniperbot.tk`);
-    }
+          async function waitForChannelQuery() {
+            if (typeof channelOptions !== "undefined") {
+              optionsActions.doChannelOptions(sender, message, tags, channel, channelOptions, TMI, fauna, q, config).catch(error => console.log(error));
+              AIActions.sendMessage(config, AI, TMI, channel, tags, message, channelOptions);
+            } else {
+              setTimeout(waitForChannelQuery, 250);
+            };
+          };
+          waitForChannelQuery()
+            .catch(error => console.log(error));
 
+        } else {
+          setTimeout(waitForSenderQuery, 250);
+        }
+      }
+      waitForSenderQuery()
+        .catch(error => console.log(error));
+    });
+    // NOTE: anything past this point will not be able to reference anything inside of the delayed script
+  } else {
+    setTimeout(runMaster, 100);
   }
-});
+}
+// Run main (delayed) script
+runMaster();
