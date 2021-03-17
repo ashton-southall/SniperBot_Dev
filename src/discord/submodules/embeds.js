@@ -75,7 +75,7 @@ const helpEmbed = new discordjs.MessageEmbed()
         value: `Note: These commands can only be used by SniperBot Admins\r ${config.masterConfig.prefix}blacklist {add / remove} {userID}`
     }, {
         name: `Server Admin Commands`,
-        value: `${config.masterConfig.prefix}ban {mention_member}\r${config.masterConfig.prefix}kick {mention_member}\r${config.masterConfig.prefix}purge {number}`
+        value: `${config.masterConfig.prefix}ban {mention_member}\r${config.masterConfig.prefix}kick {mention_member}\r${config.masterConfig.prefix}purge {number}\r${config.masterConfig.prefix}options {option} {number} (!options for a list of changable options)`
     }, {
         name: `User Commands`,
         value: `${config.masterConfig.prefix}help - Shows this`
