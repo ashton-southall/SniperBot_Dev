@@ -81,7 +81,7 @@ async function doChannelOptions(config, embeds, discordjs, discord, message, sen
                     value: server[0][5]
                 }).setTimestamp().setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
                 message.channel.send(optionsEmbed);
-                message.channel.startTyping();
+                message.channel.stopTyping();
             };
         };
     };
