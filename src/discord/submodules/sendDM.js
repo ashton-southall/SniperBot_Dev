@@ -2,11 +2,9 @@ const embeds = require('./embeds.js');
 
 async function sendReply(discordjs, discord, message, embeds) {
     console.log(`DMReply Function Called, sending message`)
-    message.channel.startTyping();
     const newMessageEmbed = new discordjs.MessageEmbed().setColor('#ff5757').setTitle(`New Message`).addField(`User ID: ${message.author.id}`, `${message}`, true).setTimestamp().setFooter('© SniperBot By Adsnipers', 'https://i.imgur.com/WFj42aM.png');
     message.author.send(embeds.DMReply).catch(console.log(`ERROR: ${error}`));
     discord.channels.cache.get("707636583121158174").send(newMessageEmbed).catch(console.log(`ERROR: ${error}`));
-    message.channel.stopTyping();
 }
 
 async function sendKicked(discordjs, discord, message, embeds) {
