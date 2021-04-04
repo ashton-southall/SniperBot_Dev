@@ -26,10 +26,12 @@ async function sendMessage(config, AI, TMI, channel, tags, message, channelOptio
                 };
               };
             };
-            if (data.intents[0].name == 'bot_message' && data.intents[0].confidence > 0.9) {
-              TMI.ban(channel, tags.username, config.masterConfig.bot_message_ban_reason).catch(error => `ERROR: ${error}`);
-            }
+            console.log(data.intents[0].name && data.intents[0].confidence)
+            
           };
+          if (data.intents[0].name == 'bot_message' && data.intents[0].confidence > 0.9) {
+            TMI.ban(channel, tags.username, config.masterConfig.bot_message_ban_reason).catch(error => `ERROR: ${error}`);
+          }
         };
       })
       .catch(console.error);
