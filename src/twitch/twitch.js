@@ -75,7 +75,6 @@ function runMaster() {
         if (typeof sender !== "undefined") {
           // Log message Contents
           console.log(`${channel} | ${tags.username} | ${message} || Self: ${self}`);
-          console.log(sender[0]);
 
           async function checkDB(sender, TMI, fauna, q, channel, tags) {
             if (typeof sender !== "undefined") {
