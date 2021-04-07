@@ -1,6 +1,9 @@
 // Master bot script fot twitch module
 // #################################################
 // Confidential, DO NOT SHARE THIS CODE
+//##################################################
+// To-DO:
+// - Refactor master script (Better optimization + async await needed)
 require('dotenv').config();
 const tmi = require("tmi.js");
 const fs = require('fs')
@@ -61,14 +64,20 @@ function runMaster() {
       // Ignore messages sent by SniperBot
       if (self) return;
 
-
+      // Set vars
       var sender;
       var channelOptions;
+
+      // Check if userfile exists
       fs.readFile(`./src/twitch/temp/${tags.username}.json`, (err, rawdata) => {
         if (rawdata) {
+          // If Exists
           data = JSON.parse(rawdata);
           console.log(data);
         } else if (err) {
+          // If doesnt exist
+          // Query Fauna for information
+          // ToDo: Save query result to json file for next check
           var querySender = fauna.paginate(q.Match(q.Index("twitch.users.allInfo"), tags.username));
           querySender.each(function (page) {
             sender = page
@@ -80,6 +89,8 @@ function runMaster() {
         }
       });
 
+      // Wait for query result to exist
+      // Loops until query result exists, needs refactor
       async function waitForSenderQuery() {
         if (typeof sender !== "undefined") {
           // Log message Contents
