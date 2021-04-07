@@ -3,6 +3,7 @@
 // Confidential, DO NOT SHARE THIS CODE
 require('dotenv').config();
 const tmi = require("tmi.js");
+const fs = require('fs')
 const config = require('../config.json');
 const {
   Wit,
@@ -60,15 +61,23 @@ function runMaster() {
       // Ignore messages sent by SniperBot
       if (self) return;
 
+
       var sender;
       var channelOptions;
-      var querySender = fauna.paginate(q.Match(q.Index("twitch.users.allInfo"), tags.username));
-      querySender.each(function (page) {
-        sender = page
-      });
-      var queryChannelOptions = fauna.paginate(q.Match(q.Index("twitch.users.channelOptions"), tags.username));
-      queryChannelOptions.each(function (page) {
-        channelOptions = page
+      fs.readFile(`./src/twitch/temp/${tags.username}.json`, (err, rawdata) => {
+        if (rawdata) {
+          data = JSON.parse(rawdata);
+          console.log(data);
+        } else if (err) {
+          var querySender = fauna.paginate(q.Match(q.Index("twitch.users.allInfo"), tags.username));
+          querySender.each(function (page) {
+            sender = page
+          });
+          var queryChannelOptions = fauna.paginate(q.Match(q.Index("twitch.users.channelOptions"), tags.username));
+          queryChannelOptions.each(function (page) {
+            channelOptions = page
+          });
+        }
       });
 
       async function waitForSenderQuery() {
@@ -78,27 +87,27 @@ function runMaster() {
 
           async function checkDB(sender, TMI, fauna, q, channel, tags) {
             if (typeof sender !== "undefined") {
-                console.log(sender);
-                if (sender.length == 0) {
-                    fauna.query(q.Create(q.Collection("twitch_users"), {
-                        data: {
-                            "username": tags.username,
-                            "inChannel": false,
-                            "channelName": `#${tags.username}`,
-                            "isAdmin": false,
-                            "isBlacklisted": false,
-                        }
-                    })).catch(error => `ERROR: ${error}`);
-                }
+              console.log(sender);
+              if (sender.length == 0) {
+                fauna.query(q.Create(q.Collection("twitch_users"), {
+                  data: {
+                    "username": tags.username,
+                    "inChannel": false,
+                    "channelName": `#${tags.username}`,
+                    "isAdmin": false,
+                    "isBlacklisted": false,
+                  }
+                })).catch(error => `ERROR: ${error}`);
+              }
             } else {
-                setTimeout(checkDB, 250);
+              setTimeout(checkDB, 250);
             };
-        };
-        checkDB(sender, TMI, fauna, q, channel, tags);
+          };
+          checkDB(sender, TMI, fauna, q, channel, tags);
 
           // Check if user is blacklisted 
-        blacklist.checkBlacklist(sender, TMI, config, channel, tags);
-        blacklist.blacklistManagement(sender, TMI, fauna, q, config, channel, tags, message);
+          blacklist.checkBlacklist(sender, TMI, config, channel, tags);
+          blacklist.blacklistManagement(sender, TMI, fauna, q, config, channel, tags, message);
           // If Message startswith !sniperbot
           if (message.toLowerCase().startsWith(`${config.masterConfig.prefix}sniperbot`)) {
             var action = message.split(' ')[1];

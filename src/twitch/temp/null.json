@@ -1,0 +1,13 @@
+{
+    "username": "adsnipers",
+    "inChannel": true,
+    "channelName": "#adsnipers",
+    "isAdmin": true,
+    "isBlacklisted": false,
+    "options": {
+      "insultThreshold": "6",
+      "racismThreshold": "6",
+      "threatThreshold": "6",
+      "toxicityThreshold": "6"
+    }
+}
