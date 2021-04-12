@@ -1,9 +1,9 @@
 // Master bot script fot twitch module
 // #################################################
-// Confidential, DO NOT SHARE THIS CODE
+//! Confidential, DO NOT SHARE THIS CODE
 //##################################################
-// To-DO:
-// - Refactor master script (Better optimization + async await needed)
+//* To-DO:
+//? - Refactor master script (Better optimization + async await needed)
 require('dotenv').config();
 const tmi = require("tmi.js");
 const fs = require('fs')
