@@ -77,7 +77,6 @@ function runMaster() {
         } else if (err) {
           // If doesnt exist
           // Query Fauna for information
-          // ToDo: Save query result to json file for next check
           var querySender = fauna.paginate(q.Match(q.Index("twitch.users.allInfo"), tags.username));
           querySender.each(function (page) {
             sender = page
@@ -95,6 +94,20 @@ function runMaster() {
         if (typeof sender !== "undefined") {
           // Log message Contents
           console.log(`${channel} | ${tags.username} | ${message} || Self: ${self}`);
+
+          // Save Query results to local
+          userData = [
+            sender[0][0],
+            sender[0][1],
+            sender[0][2],
+            sender[0][3],
+            sender[0][4],
+            sender[0][5],
+          ];
+          fs.writeFile(`./src/twitch/temp/${tags.username}.json`, JSON.stringify(userData), (err) => {
+            if (err) throw err;
+            console.log('Sender info saved');
+          });
 
           async function checkDB(sender, TMI, fauna, q, channel, tags) {
             if (typeof sender !== "undefined") {
