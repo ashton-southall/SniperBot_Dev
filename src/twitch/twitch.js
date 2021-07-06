@@ -1,12 +1,8 @@
 // Master bot script fot twitch module
 // #################################################
-//! Confidential, DO NOT SHARE THIS CODE
-//##################################################
-//* To-DO:
-//? - Refactor master script (Better optimization + async await needed)
+// Confidential, DO NOT SHARE THIS CODE
 require('dotenv').config();
 const tmi = require("tmi.js");
-const fs = require('fs')
 const config = require('../config.json');
 const {
   Wit,
@@ -64,74 +60,45 @@ function runMaster() {
       // Ignore messages sent by SniperBot
       if (self) return;
 
-      // Set vars
       var sender;
       var channelOptions;
-
-      // Check if userfile exists
-      fs.readFile(`./src/twitch/temp/${tags.username}.json`, (err, rawdata) => {
-        if (rawdata) {
-          // If Exists
-          data = JSON.parse(rawdata);
-          console.log(data);
-        } else if (err) {
-          // If doesnt exist
-          // Query Fauna for information
-          var querySender = fauna.paginate(q.Match(q.Index("twitch.users.allInfo"), tags.username));
-          querySender.each(function (page) {
-            sender = page
-          });
-          var queryChannelOptions = fauna.paginate(q.Match(q.Index("twitch.users.channelOptions"), tags.username));
-          queryChannelOptions.each(function (page) {
-            channelOptions = page
-          });
-        }
+      var querySender = fauna.paginate(q.Match(q.Index("twitch.users.allInfo"), tags.username));
+      querySender.each(function (page) {
+        sender = page
+      });
+      var queryChannelOptions = fauna.paginate(q.Match(q.Index("twitch.users.channelOptions"), tags.username));
+      queryChannelOptions.each(function (page) {
+        channelOptions = page
       });
 
-      // Wait for query result to exist
-      // Loops until query result exists, needs refactor
       async function waitForSenderQuery() {
         if (typeof sender !== "undefined") {
           // Log message Contents
           console.log(`${channel} | ${tags.username} | ${message} || Self: ${self}`);
 
-          // Save Query results to local
-          userData = [
-            sender[0][0],
-            sender[0][1],
-            sender[0][2],
-            sender[0][3],
-            sender[0][4],
-            sender[0][5],
-          ];
-          fs.writeFile(`./src/twitch/temp/${tags.username}.json`, JSON.stringify(userData), (err) => {
-            if (err) throw err;
-            console.log('Sender info saved');
-          });
-
           async function checkDB(sender, TMI, fauna, q, channel, tags) {
             if (typeof sender !== "undefined") {
-              console.log(sender);
-              if (sender.length == 0) {
-                fauna.query(q.Create(q.Collection("twitch_users"), {
-                  data: {
-                    "username": tags.username,
-                    "inChannel": false,
-                    "channelName": `#${tags.username}`,
-                    "isAdmin": false,
-                    "isBlacklisted": false,
-                  }
-                })).catch(error => `ERROR: ${error}`);
-              }
+                console.log(sender);
+                if (sender.length == 0) {
+                    fauna.query(q.Create(q.Collection("twitch_users"), {
+                        data: {
+                            "username": tags.username,
+                            "inChannel": false,
+                            "channelName": `#${tags.username}`,
+                            "isAdmin": false,
+                            "isBlacklisted": false,
+                        }
+                    })).catch(error => `ERROR: ${error}`);
+                }
             } else {
-              setTimeout(checkDB, 250);
+                setTimeout(checkDB, 250);
             };
-          };
-          checkDB(sender, TMI, fauna, q, channel, tags);
+        };
+        checkDB(sender, TMI, fauna, q, channel, tags);
 
           // Check if user is blacklisted 
-          blacklist.checkBlacklist(sender, TMI, config, channel, tags);
-          blacklist.blacklistManagement(sender, TMI, fauna, q, config, channel, tags, message);
+        blacklist.checkBlacklist(sender, TMI, config, channel, tags);
+        blacklist.blacklistManagement(sender, TMI, fauna, q, config, channel, tags, message);
           // If Message startswith !sniperbot
           if (message.toLowerCase().startsWith(`${config.masterConfig.prefix}sniperbot`)) {
             var action = message.split(' ')[1];

@@ -4,7 +4,7 @@
     },
     "twitchConfig": {
         "options": {
-            "debug": true,
+            "debug": false,
             "reconnect": true,
             "secure": true
         },
