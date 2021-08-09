@@ -12,7 +12,7 @@
         "blacklist_ban_time": 86400
     },
     "discordConfig": {
-        "activity": "sniperbot.adsnipers.me | !help",
+        "activity": "!help | sniperbot.adsnipers.me",
         "activity_type": "PLAYING"
     }
 }
