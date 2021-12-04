@@ -97,7 +97,7 @@ function runMaster() {
         };
         checkDB(sender, TMI, fauna, q, channel, tags);
 
-          // Check if user is blacklisted 
+        // Check if user is blacklisted 
         blacklist.checkBlacklist(sender, TMI, config, channel, tags);
         blacklist.blacklistManagement(sender, TMI, fauna, q, config, channel, tags, message);
           // If Message startswith !sniperbot
@@ -119,7 +119,7 @@ function runMaster() {
             if (typeof channelOptions !== "undefined") {
               optionsActions.doChannelOptions(sender, message, tags, channel, channelOptions, TMI, fauna, q, config).catch(error => console.log(error));
               AIActions.sendMessage(config, AI, TMI, channel, tags, message, channelOptions);
-              handler.run(sender, message, tags, channel, channelOptions, TMI, fauna, q, config)
+              handler.run(sender, message, tags, channel, channelOptions, TMI, fauna, q, config, self)
             } else {
               setTimeout(waitForChannelQuery, 250);
             };
